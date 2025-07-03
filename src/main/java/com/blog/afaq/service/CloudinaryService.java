@@ -20,4 +20,14 @@ public class CloudinaryService {
                 ObjectUtils.asMap("folder", "articles"));
         return uploadResult.get("secure_url").toString();
     }
+
+    public String uploadFile(MultipartFile file) {
+        try {
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            return uploadResult.get("secure_url").toString();
+        } catch (IOException e) {
+            throw new RuntimeException("Cloudinary upload failed", e);
+        }
+    }
+
 }
