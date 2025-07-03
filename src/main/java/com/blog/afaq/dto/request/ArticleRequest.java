@@ -1,0 +1,28 @@
+package com.blog.afaq.dto.request;
+
+import com.blog.afaq.model.ArticleType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+
+@Data
+public class ArticleRequest {
+
+    @NotBlank
+    private String title;
+
+    @NotBlank
+    private String description;
+
+    @NotBlank
+    private String auteur;
+
+    @NotNull
+    private ArticleType type;
+
+    @NotBlank
+    private String contenu;
+
+    @NotBlank
+    private String imageUrl;
+}

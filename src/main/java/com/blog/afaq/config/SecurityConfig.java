@@ -39,6 +39,10 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/api/articles/**").permitAll()
+                        .requestMatchers("/api/comments/**").permitAll()
+
+
                         .requestMatchers(HttpMethod.GET, "/public/**").permitAll()
                         .requestMatchers("/api/users/verify-email").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
