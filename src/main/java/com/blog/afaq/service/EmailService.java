@@ -156,25 +156,31 @@ public class EmailService {
 
     @Async
     public void sendResetPasswordCode(String recipientEmail, String code) {
-        String subject = "🔐 Your Legy Password Reset Code";
+        if (recipientEmail == null || recipientEmail.isBlank()) {
+            throw new IllegalArgumentException("Recipient email must not be null or empty.");
+        }
 
-        // Ensure the code is valid and not null, else use a fallback value
-        String resetCode = (code != null && !code.isEmpty()) ? code : "No Code Provided";
+        String subject = "🔐 Your Blog Password Reset Code";
 
-        String body = """
-                <html>
-                <body>
-                    <h2>Reset Your Password</h2>
-                    <p>Here is your password reset code:</p>
-                    <h1 style="color:#E64A19;">%s</h1>
-                    <p>This code is valid for 1 minute.</p>
-                    <p>If you didn’t request a password reset, please ignore this email.</p>
-                    <p>— Legy Team</p>
-                </body>
-                </html>
-                """.formatted(resetCode);
+        String resetCode = (code != null && !code.isBlank()) ? code : "N/A";
+
+        String body = String.format("""
+        <html>
+            <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
+                <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; max-width: 600px; margin: auto;">
+                    <h2 style="color: #333;">Reset Your Password</h2>
+                    <p style="font-size: 16px;">Here is your one-time password (OTP) to reset your password:</p>
+                    <h1 style="color: #E64A19; font-size: 36px;">%s</h1>
+                    <p style="font-size: 14px; color: #555;">This code is valid for 1 minute.</p>
+                    <p style="font-size: 14px; color: #777;">If you didn’t request a password reset, you can safely ignore this email.</p>
+                    <p style="font-size: 14px; color: #555;">— Blog Team</p>
+                </div>
+            </body>
+        </html>
+        """, resetCode);
 
         sendHtmlEmail(recipientEmail, subject, body);
     }
+
 
 }

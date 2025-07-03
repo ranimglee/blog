@@ -41,7 +41,6 @@ public class AuthService {
     private final VerificationTokenRepository verificationTokenRepository;
     private final EmailService emailService;
     private final ResetCodeService resetCodeService;
-    private final WhatsAppService whatsAppService;
 
     private final ConcurrentHashMap<String, FailedLoginAttempt> loginAttempts = new ConcurrentHashMap<>();
 
@@ -221,38 +220,34 @@ public class AuthService {
 
 
 
-    public void sendResetCode(String email, String channel) {
+    public void sendResetCode(String email) {
         Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isEmpty() || !userOpt.get().getStatus().equals(UserStatus.ACTIVE)) return;
 
         User user = userOpt.get();
         try {
             String code = resetCodeService.generateCode(email);
-            if ("whatsapp".equalsIgnoreCase(channel)) {
-                if (user.getPhoneNumber() == null) {
-                    throw new MissingPhoneNumberException("No phone number available for WhatsApp.");
-                }
-                whatsAppService.sendResetCode(user.getPhoneNumber(), code);
-            } else {
-                emailService.sendResetPasswordCode(user.getEmail(), code);
-            }
+            emailService.sendResetPasswordCode(user.getEmail(), code);
+
         } catch (Exception e) {
             throw new ResetCodeDeliveryException("Failed to send reset code for user: " + user.getEmail());
         }
     }
 
-    public void resetPassword(String email, String code, String newPassword) {
-        if (!resetCodeService.validateCode(email, code)) {
-            throw new InvalidResetCodeException("Invalid or expired verification code.");
+    public void resetPassword(String email, String otpCode, String newPassword) {
+        if (!resetCodeService.validateCode(email, otpCode)) {
+            throw new InvalidResetCodeException("Invalid or expired OTP.");
         }
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new InvalidResetCodeException("Invalid request."));
+                .orElseThrow(() -> new InvalidResetCodeException("Invalid user."));
 
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
+
         resetCodeService.deleteCode(email);
     }
+
 
     public void changePassword(String token, String currentPassword, String newPassword) {
         String email = jwtTokenProvider.extractEmailFromAccessToken(token);

@@ -36,7 +36,7 @@ public class PublicController {
 
     @PostMapping("/request-reset")
     public ResponseEntity<GenericMessageResponse> requestReset(@RequestBody RequestResetCodeRequest request) {
-        authService.sendResetCode(request.email(), request.channel());
+        authService.sendResetCode(request.email());
         return ResponseEntity.ok(new GenericMessageResponse("Le code a été envoyé à votre adresse e-mail."));
     }
 
