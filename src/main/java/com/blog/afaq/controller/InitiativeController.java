@@ -2,11 +2,14 @@ package com.blog.afaq.controller;
 
 
 import com.blog.afaq.dto.request.InitiativeRequest;
+import com.blog.afaq.dto.response.ImageUploadResponse;
 import com.blog.afaq.dto.response.InitiativeResponse;
+import com.blog.afaq.service.CloudinaryService;
 import com.blog.afaq.service.InitiativeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -16,6 +19,7 @@ import java.util.List;
 public class InitiativeController {
 
     private final InitiativeService initiativeService;
+    private final CloudinaryService cloudinaryService;
 
     @GetMapping("/get-all-initiatives")
     public ResponseEntity<List<InitiativeResponse>> getAll() {
@@ -43,5 +47,14 @@ public class InitiativeController {
     public ResponseEntity<Void> delete(@PathVariable String id) {
         initiativeService.deleteInitiative(id);
         return ResponseEntity.noContent().build();
+    }
+    @PostMapping("/upload-image-initiative")
+    public ResponseEntity<ImageUploadResponse> uploadImage(@RequestParam("file") MultipartFile file) {
+        try {
+            String imageUrl = cloudinaryService.uploadImage(file);
+            return ResponseEntity.ok(new ImageUploadResponse(imageUrl));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

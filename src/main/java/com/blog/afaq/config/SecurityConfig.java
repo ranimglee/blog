@@ -43,7 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/comments/**").permitAll()
 
 
-                        .requestMatchers(HttpMethod.GET, "/public/**").permitAll()
+                        .requestMatchers( "/public/**").permitAll()
                         .requestMatchers("/api/users/verify-email").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/user/**").hasRole("USER")

@@ -141,7 +141,7 @@ public class EmailService {
         }
     }
 
-    private void sendHtmlEmail(String to, String subject, String body) {
+    public void sendHtmlEmail(String to, String subject, String body) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -180,6 +180,24 @@ public class EmailService {
         """, resetCode);
 
         sendHtmlEmail(recipientEmail, subject, body);
+    }
+    public void sendHtmlEmailTo(String to, String subject, String htmlContent, String replyTo) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+            helper.setFrom("noreply@yourdomain.com"); // your verified sender
+            if (replyTo != null && !replyTo.isEmpty()) {
+                helper.setReplyTo(replyTo);
+            }
+
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send email", e);
+        }
     }
 
 
