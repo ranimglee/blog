@@ -2,6 +2,8 @@ package com.blog.afaq.dto.request;
 
 import lombok.Data;
 
+import java.time.Instant;
+
 @Data
 public class RegisterRequest {
     private String firstname;
@@ -10,4 +12,5 @@ public class RegisterRequest {
     private String password;
     private String country;
     private String phoneNumber;
+
 }

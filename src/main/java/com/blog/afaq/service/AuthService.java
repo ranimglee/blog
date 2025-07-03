@@ -5,8 +5,11 @@ package com.blog.afaq.service;
 import com.blog.afaq.dto.request.LoginRequest;
 import com.blog.afaq.dto.request.RefreshTokenRequest;
 import com.blog.afaq.dto.request.RegisterRequest;
+import com.blog.afaq.dto.request.UpdateUserProfileRequest;
 import com.blog.afaq.dto.response.AuthResponse;
 import com.blog.afaq.dto.response.LoginResponse;
+import com.blog.afaq.dto.response.UserProfileResponse;
+import com.blog.afaq.dto.response.UserRegisterResponse;
 import com.blog.afaq.exception.*;
 import com.blog.afaq.model.Role;
 import com.blog.afaq.model.User;
@@ -20,6 +23,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,10 +40,12 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final VerificationTokenRepository verificationTokenRepository;
     private final EmailService emailService;
+    private final ResetCodeService resetCodeService;
+    private final WhatsAppService whatsAppService;
 
     private final ConcurrentHashMap<String, FailedLoginAttempt> loginAttempts = new ConcurrentHashMap<>();
 
-    public AuthResponse register(RegisterRequest request) {
+    public UserRegisterResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new EmailAlreadyExistsException(request.getEmail());
         }
@@ -55,6 +61,8 @@ public class AuthService {
         user.setRole(Role.USER);
         user.setCountry(request.getCountry());
         user.setPhoneNumber(request.getPhoneNumber());
+        user.setCreatedAt(Instant.now());
+
 
         userRepository.save(user);
         VerificationToken token = new VerificationToken();
@@ -63,10 +71,18 @@ public class AuthService {
         token.setExpiresAt(LocalDateTime.now().plusDays(1));
         verificationTokenRepository.save(token);
 
-        String confirmationLink = "http://localhost:8080/api/users/verify-email?token=" + token.getToken();
+        String confirmationLink = "http://localhost:8080/auth/verify-email?token=" + token.getToken();
         emailService.sendEmailConfirmation(user.getEmail(), confirmationLink);
-        return new AuthResponse("User registered successfully", null);
-    }
+        return new UserRegisterResponse(
+                user.getFirstname(),
+                user.getLastname(),
+                user.getEmail(),
+                user.getCountry(),
+                user.getPhoneNumber(),
+                user.getStatus(),
+                user.getCreatedAt(),
+                user.getRole()
+        );    }
 
     public boolean verifyEmail(String token) {
         Optional<VerificationToken> verificationToken = verificationTokenRepository.findByToken(token);
@@ -166,6 +182,92 @@ public class AuthService {
         }
     }
 
+    public UserProfileResponse getUserByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+
+        return UserProfileResponse.builder()
+                .id(user.getId())
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .country(user.getCountry())
+                .build();
+    }
+
+    public UserProfileResponse updateProfile(String email, UpdateUserProfileRequest request) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        user.setFirstname(request.firstname());
+        user.setLastname(request.lastname());
+        user.setPhoneNumber(request.phoneNumber());
+        user.setCountry(request.country());
+
+
+        userRepository.save(user);
+
+        return UserProfileResponse.builder()
+                .id(user.getId())
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .country(user.getCountry())
+                .build();
+    }
+
+
+
+    public void sendResetCode(String email, String channel) {
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty() || !userOpt.get().getStatus().equals(UserStatus.ACTIVE)) return;
+
+        User user = userOpt.get();
+        try {
+            String code = resetCodeService.generateCode(email);
+            if ("whatsapp".equalsIgnoreCase(channel)) {
+                if (user.getPhoneNumber() == null) {
+                    throw new MissingPhoneNumberException("No phone number available for WhatsApp.");
+                }
+                whatsAppService.sendResetCode(user.getPhoneNumber(), code);
+            } else {
+                emailService.sendResetPasswordCode(user.getEmail(), code);
+            }
+        } catch (Exception e) {
+            throw new ResetCodeDeliveryException("Failed to send reset code for user: " + user.getEmail());
+        }
+    }
+
+    public void resetPassword(String email, String code, String newPassword) {
+        if (!resetCodeService.validateCode(email, code)) {
+            throw new InvalidResetCodeException("Invalid or expired verification code.");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new InvalidResetCodeException("Invalid request."));
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        resetCodeService.deleteCode(email);
+    }
+
+    public void changePassword(String token, String currentPassword, String newPassword) {
+        String email = jwtTokenProvider.extractEmailFromAccessToken(token);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new InvalidCredentialsException("User not found."));
+
+        // Check if the current password matches the stored password
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new InvalidCredentialsException("Current password is incorrect.");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
 
 
 }

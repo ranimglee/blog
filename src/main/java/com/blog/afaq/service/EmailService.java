@@ -2,8 +2,9 @@ package com.blog.afaq.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -11,8 +12,8 @@ import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-
 public class EmailService {
+    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
     private final JavaMailSender mailSender;
 
     @Async
@@ -38,7 +39,7 @@ public class EmailService {
                                 box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
                             }
                             .header {
-                                background-color: #E64A19; /* Rouge intense */
+                                background-color: #E64A19;
                                 padding: 20px;
                                 text-align: center;
                                 color: #FFFFFF;
@@ -50,12 +51,12 @@ public class EmailService {
                             .content {
                                 padding: 20px;
                                 text-align: center;
-                                color: #333333; /* Professional dark gray */
+                                color: #333333;
                                 font-size: 16px;
                                 line-height: 1.6;
                             }
                             .content h2 {
-                                color: #388E3C; /* Vert Herb */
+                                color: #388E3C;
                                 font-size: 22px;
                                 margin-bottom: 10px;
                             }
@@ -113,7 +114,7 @@ public class EmailService {
             helper.setText(body, true);
             mailSender.send(message);
         } catch (MessagingException e) {
-            throw new RuntimeException("Failed to send email: " + e.getMessage());
+            log.error("Failed to send welcome email to {}: {}", recipientEmail, e.getMessage());
         }
     }
 
@@ -131,9 +132,13 @@ public class EmailService {
                         <p>Best regards, <br> Leggy Team</p>
                     </body>
                     </html>
-                """.formatted(confirmationLink);
+                """.formatted(recipientEmail, confirmationLink);
 
-        sendHtmlEmail(recipientEmail, subject, body);
+        try {
+            sendHtmlEmail(recipientEmail, subject, body);
+        } catch (RuntimeException e) {
+            log.error("Failed to send confirmation email to {}: {}", recipientEmail, e.getMessage());
+        }
     }
 
     private void sendHtmlEmail(String to, String subject, String body) {
@@ -147,6 +152,29 @@ public class EmailService {
         } catch (MessagingException e) {
             throw new RuntimeException("Failed to send email: " + e.getMessage());
         }
+    }
+
+    @Async
+    public void sendResetPasswordCode(String recipientEmail, String code) {
+        String subject = "🔐 Your Legy Password Reset Code";
+
+        // Ensure the code is valid and not null, else use a fallback value
+        String resetCode = (code != null && !code.isEmpty()) ? code : "No Code Provided";
+
+        String body = """
+                <html>
+                <body>
+                    <h2>Reset Your Password</h2>
+                    <p>Here is your password reset code:</p>
+                    <h1 style="color:#E64A19;">%s</h1>
+                    <p>This code is valid for 1 minute.</p>
+                    <p>If you didn’t request a password reset, please ignore this email.</p>
+                    <p>— Legy Team</p>
+                </body>
+                </html>
+                """.formatted(resetCode);
+
+        sendHtmlEmail(recipientEmail, subject, body);
     }
 
 }

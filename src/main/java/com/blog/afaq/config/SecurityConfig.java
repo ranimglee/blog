@@ -40,7 +40,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/public/**").permitAll()
+                        .requestMatchers("/api/users/verify-email").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/user/**").hasRole("USER")
+
+
                         .requestMatchers(
                                 "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html",
                                 "/swagger-resources",
