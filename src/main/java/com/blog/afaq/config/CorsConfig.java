@@ -14,7 +14,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // Appliquer à toutes les routes
-                        .allowedOrigins("http://localhost:8081","http://localhost:8082") // ton frontend
+                        .allowedOrigins("http://localhost:8081","http://localhost:8082","https://preview--gulf-coop-insights.lovable.app") // ton frontend
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .exposedHeaders("Content-Disposition")

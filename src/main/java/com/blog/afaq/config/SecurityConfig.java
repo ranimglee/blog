@@ -42,7 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/articles/**").permitAll()
                         .requestMatchers("/api/comments/**").permitAll()
                         .requestMatchers("/api/ressources/**").permitAll()
-                        .requestMatchers("/admin/initiatives/**").permitAll()
+                        .requestMatchers("/api/initiatives/**").permitAll()
 
 
 
