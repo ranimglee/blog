@@ -24,6 +24,6 @@ public class Ressource {
     private long size; // en octets
     private String fileUrl;
     private Date createdAt;
-
+    private String originalFilename;
 
 }

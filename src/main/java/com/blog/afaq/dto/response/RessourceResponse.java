@@ -18,4 +18,5 @@ public class RessourceResponse {
     private long size;
     private String fileUrl;
     private Date createdAt;
+    private String originalFilename;
 }

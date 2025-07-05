@@ -37,7 +37,7 @@ public class RessourceService {
 
     public RessourceResponse uploadRessource(MultipartFile file, String titre, String description,
                                              ResourceCategory category, FileType fileType) {
-        String fileUrl = cloudinaryService.uploadFile(file);
+        String fileUrl = cloudinaryService.uploadFile(file, fileType.name());  // upload sur Cloudinary
 
         Ressource ressource = Ressource.builder()
                 .titre(titre)
@@ -46,6 +46,7 @@ public class RessourceService {
                 .fileType(fileType)
                 .size(file.getSize())
                 .fileUrl(fileUrl)
+                .originalFilename(file.getOriginalFilename()) // <--- stocker le nom original ici
                 .createdAt(new Date())
                 .build();
 
@@ -58,6 +59,8 @@ public class RessourceService {
 
         return toDto(ressource);
     }
+
+
     public List<RessourceResponse> getAll() {
         return ressourceRepository.findAll()
                 .stream()
@@ -87,6 +90,7 @@ public class RessourceService {
                 .size(r.getSize())
                 .fileUrl(r.getFileUrl())
                 .createdAt(r.getCreatedAt())
+                .originalFilename(r.getOriginalFilename())
                 .build();
     }
 
