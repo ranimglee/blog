@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/initiatives")
+@RequestMapping("/api/initiatives")
 @RequiredArgsConstructor
 public class InitiativeController {
 

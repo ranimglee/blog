@@ -1,17 +1,30 @@
 package com.blog.afaq.service;
 
 import com.blog.afaq.dto.response.RessourceResponse;
+import com.blog.afaq.exception.ResourceNotFoundException;
 import com.blog.afaq.model.FileType;
 import com.blog.afaq.model.ResourceCategory;
 import com.blog.afaq.model.Ressource;
 
+import com.blog.afaq.model.Subscriber;
 import com.blog.afaq.repository.RessourceRepository;
+import com.blog.afaq.repository.SubscriberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +32,8 @@ public class RessourceService {
 
     private final CloudinaryService cloudinaryService;
     private final RessourceRepository ressourceRepository;
+    private final NewsletterService newsletterService;
+
 
     public RessourceResponse uploadRessource(MultipartFile file, String titre, String description,
                                              ResourceCategory category, FileType fileType) {
@@ -35,6 +50,11 @@ public class RessourceService {
                 .build();
 
         ressourceRepository.save(ressource);
+        newsletterService.notifySubscribersAboutNewArticle(
+                ressource.getTitre(),
+                ressource.getDescription(),
+                "http://localhost:3000/article/" + ressource.getId() // adjust to your frontend
+        );
 
         return toDto(ressource);
     }
@@ -69,4 +89,12 @@ public class RessourceService {
                 .createdAt(r.getCreatedAt())
                 .build();
     }
+
+
+    public Ressource getRessourceById(String id) {
+        return ressourceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Ressource non trouvée avec l'ID : " + id));
+    }
+
+
 }

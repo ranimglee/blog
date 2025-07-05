@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 public class InitiativeService {
 
     private final InitiativeRepository initiativeRepository;
+    private final NewsletterService newsletterService;
 
     public List<InitiativeResponse> getAllInitiatives() {
         return initiativeRepository.findAll().stream()
@@ -40,6 +41,12 @@ public class InitiativeService {
         initiative.setCreatedAt(Instant.now());
 
         Initiative saved = initiativeRepository.save(initiative);
+        newsletterService.notifySubscribersAboutNewArticle(
+                initiative.getTitle(),
+                initiative.getSubTitle(),
+                "http://localhost:3000/article/" + initiative.getId() // adjust to your frontend
+        );
+
         return mapToResponse(saved);
     }
 

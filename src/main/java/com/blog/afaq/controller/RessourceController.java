@@ -4,8 +4,13 @@ import com.blog.afaq.dto.response.RessourceResponse;
 
 import com.blog.afaq.model.FileType;
 import com.blog.afaq.model.ResourceCategory;
+import com.blog.afaq.model.Ressource;
 import com.blog.afaq.service.RessourceService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,6 +49,20 @@ public class RessourceController {
     public ResponseEntity<Void> delete(@PathVariable String id) {
         ressourceService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/download/{id}")
+    public ResponseEntity<Void> downloadFile(@PathVariable String id) {
+        Ressource ressource = ressourceService.getRessourceById(id);
+        String cloudinaryUrl = ressource.getFileUrl();
+
+        // Vérifie que c’est bien une URL
+        if (cloudinaryUrl != null && cloudinaryUrl.startsWith("http")) {
+            return ResponseEntity.status(302) // ou HttpStatus.FOUND
+                    .header("Location", cloudinaryUrl)
+                    .build();
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
 }

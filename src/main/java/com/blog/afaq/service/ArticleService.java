@@ -18,6 +18,7 @@ import java.util.Optional;
 public class ArticleService {
 
     private final ArticleRepository articleRepository;
+    private final NewsletterService newsletterService;
 
     public ArticleResponse createArticle(ArticleRequest request) {
         Article article = Article.builder()
@@ -31,6 +32,12 @@ public class ArticleService {
                 .build();
 
         Article saved = articleRepository.save(article);
+        newsletterService.notifySubscribersAboutNewArticle(
+                saved.getTitle(),
+                saved.getDescription(),
+                "http://localhost:3000/public/get-article-by/" + saved.getId() // adjust to your frontend
+        );
+
         return mapToResponse(saved);
     }
 

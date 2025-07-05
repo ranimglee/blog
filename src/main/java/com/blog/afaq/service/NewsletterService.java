@@ -1,0 +1,110 @@
+package com.blog.afaq.service;
+
+import com.blog.afaq.model.Subscriber;
+import com.blog.afaq.repository.SubscriberRepository;
+import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+public class NewsletterService {
+
+    private final SubscriberRepository subscriberRepository;
+    private final JavaMailSender mailSender;
+
+    private final SpringTemplateEngine templateEngine;
+
+    public void subscribe(String email, boolean consent) {
+        if (!consent) {
+            throw new IllegalArgumentException("Consent is required");
+        }
+
+        if (subscriberRepository.existsByEmail(email)) {
+            throw new IllegalArgumentException("This email is already subscribed.");
+        }
+
+        Subscriber subscriber = new Subscriber();
+        subscriber.setEmail(email);
+        subscriber.setConsentGiven(true);
+        subscriber.setSubscribedAt(Instant.now());
+        subscriber.setConfirmationToken(UUID.randomUUID().toString());
+        subscriberRepository.save(subscriber);
+
+        sendConfirmationEmail(subscriber);
+    }
+
+    private void sendConfirmationEmail(Subscriber subscriber) {
+        String confirmLink = "http://localhost:8080/public/newsletter/confirm?token=" + subscriber.getConfirmationToken();
+
+        // Load template context
+        Context context = new Context();
+        context.setVariable("confirmLink", confirmLink);
+
+        String htmlBody = templateEngine.process("confirmation-email.html", context);
+
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+            helper.setTo(subscriber.getEmail());
+            helper.setSubject("Confirm your subscription to Afaq");
+            helper.setText(htmlBody, true); // true = HTML
+
+            mailSender.send(mimeMessage);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to send email", e);
+        }
+    }
+
+    public boolean confirmSubscription(String token) {
+        Optional<Subscriber> optional = subscriberRepository.findByConfirmationToken(token);
+        if (optional.isEmpty()) return false;
+
+        Subscriber subscriber = optional.get();
+        subscriber.setConfirmed(true);
+        subscriber.setConfirmedAt(Instant.now());
+        subscriberRepository.save(subscriber);
+        return true;
+    }
+
+    public void notifySubscribersAboutNewArticle(String title, String summary, String articleUrl) {
+        List<Subscriber> confirmedSubs = subscriberRepository.findAll()
+                .stream()
+                .filter(Subscriber::isConfirmed)
+                .toList();
+
+        for (Subscriber subscriber : confirmedSubs) {
+            Context ctx = new Context();
+            ctx.setVariable("title", title);
+            ctx.setVariable("summary", summary);
+            ctx.setVariable("url", articleUrl);
+            ctx.setVariable("unsubscribeUrl", "http://localhost:8080/public/newsletter/unsubscribe?email=" +
+                    URLEncoder.encode(subscriber.getEmail(), StandardCharsets.UTF_8));
+
+            String htmlBody = templateEngine.process("new-article-email.html", ctx);
+
+            try {
+                MimeMessage msg = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(msg, "utf-8");
+                helper.setTo(subscriber.getEmail());
+                helper.setSubject("📰 New Article: " + title);
+                helper.setText(htmlBody, true);
+                mailSender.send(msg);
+            } catch (Exception e) {
+                System.err.println("Failed to send email to " + subscriber.getEmail());
+            }
+        }
+    }
+
+}

@@ -1,20 +1,27 @@
 package com.blog.afaq.service;
 
+import com.blog.afaq.model.Ressource;
+import com.blog.afaq.model.Subscriber;
+import com.blog.afaq.repository.SubscriberRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
 public class EmailService {
     private static final Logger log = LoggerFactory.getLogger(EmailService.class);
     private final JavaMailSender mailSender;
+    private final SubscriberRepository subscriberRepository;
 
     @Async
     public void sendWelcomeEmail(String recipientEmail, String password, String role) {
@@ -199,6 +206,5 @@ public class EmailService {
             throw new RuntimeException("Failed to send email", e);
         }
     }
-
 
 }
