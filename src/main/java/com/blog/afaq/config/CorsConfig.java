@@ -15,7 +15,7 @@ public class CorsConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins(
-                                "https://gulf-dashboard-admin.lovable.app",
+                                "https://preview--gulf-dashboard-admin.lovable.app",
                                 "https://preview--gulf-coop-insights.lovable.app",
                                 "https://blog-production-5144.up.railway.app"
                         )
