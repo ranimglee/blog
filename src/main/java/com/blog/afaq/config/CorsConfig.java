@@ -15,8 +15,8 @@ public class CorsConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins(
-                                "https://preview--gulf-dashboard-admin.lovable.app",
-                                "https://preview--gulf-coop-insights.lovable.app",
+                                "https://efaq.netlify.app",
+                                "https://efaqadmin.netlify.app",
                                 "https://blog-production-5144.up.railway.app"
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
