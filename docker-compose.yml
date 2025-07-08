@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    container_name: spring_blog_backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb+srv://ranimabassi20:d6xDb5TokZeZ0cRQ@cluster0.sa8qjm1.mongodb.net/blog?retryWrites=true&w=majority
+
+
+
+
