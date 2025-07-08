@@ -81,4 +81,9 @@ public class ArticleService {
                 .imageUrl(article.getImageUrl())
                 .build();
     }
+
+    public long getTotalArticles() {
+        return articleRepository.count();
+    }
+
 }

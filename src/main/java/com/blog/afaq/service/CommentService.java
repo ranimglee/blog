@@ -12,7 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -87,5 +89,19 @@ public class CommentService {
                 .createdAt(comment.getCreatedAt())
                 .build();
     }
+
+    public Map<String, Long> getCommentStats() {
+        long total = commentRepository.count();
+        long approved = commentRepository.countByApprovedTrue();
+        long notApproved = total - approved;
+
+        Map<String, Long> stats = new HashMap<>();
+        stats.put("totalComments", total);
+        stats.put("approvedComments", approved);
+        stats.put("pendingComments", notApproved);
+
+        return stats;
+    }
+
 }
 

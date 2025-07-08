@@ -101,4 +101,8 @@ public class RessourceService {
     }
 
 
+    public long getTotalResources() {
+        return ressourceRepository.count();
+
+    }
 }

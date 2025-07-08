@@ -2,19 +2,16 @@ package com.blog.afaq.service;
 
 
 
+import com.blog.afaq.dto.response.MonthlyAccessStat;
 import com.blog.afaq.dto.request.LoginRequest;
-import com.blog.afaq.dto.request.RefreshTokenRequest;
 import com.blog.afaq.dto.request.RegisterRequest;
 import com.blog.afaq.dto.request.UpdateUserProfileRequest;
-import com.blog.afaq.dto.response.AuthResponse;
 import com.blog.afaq.dto.response.LoginResponse;
 import com.blog.afaq.dto.response.UserProfileResponse;
 import com.blog.afaq.dto.response.UserRegisterResponse;
 import com.blog.afaq.exception.*;
-import com.blog.afaq.model.Role;
-import com.blog.afaq.model.User;
-import com.blog.afaq.model.UserStatus;
-import com.blog.afaq.model.VerificationToken;
+import com.blog.afaq.model.*;
+import com.blog.afaq.repository.AccessLogRepository;
 import com.blog.afaq.repository.UserRepository;
 import com.blog.afaq.repository.VerificationTokenRepository;
 import com.blog.afaq.security.JwtTokenProvider;
@@ -25,6 +22,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,6 +40,7 @@ public class AuthService {
     private final VerificationTokenRepository verificationTokenRepository;
     private final EmailService emailService;
     private final ResetCodeService resetCodeService;
+    private final AccessLogRepository accessLogRepository;
 
     private final ConcurrentHashMap<String, FailedLoginAttempt> loginAttempts = new ConcurrentHashMap<>();
 
@@ -143,6 +143,7 @@ public class AuthService {
         user.setRefreshToken(refreshToken);
         userRepository.save(user);
 
+        accessLogRepository.save(new AccessLog(null, user.getEmail(), Instant.now()));
 
         return new LoginResponse(accessToken, refreshToken, user.getRole());
     }
@@ -263,6 +264,8 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
+
+
 
 
 }

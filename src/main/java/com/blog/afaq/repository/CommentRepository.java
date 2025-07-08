@@ -10,5 +10,7 @@ import java.util.List;
 public interface CommentRepository extends MongoRepository<Comment, String> {
     List<Comment> findByArticleIdAndApprovedTrue(String articleId);
     List<Comment> findByApprovedFalse();
+
+    long countByApprovedTrue();
 }
 

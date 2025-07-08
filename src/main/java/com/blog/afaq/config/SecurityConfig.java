@@ -43,6 +43,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/comments/**").permitAll()
                         .requestMatchers("/api/ressources/**").permitAll()
                         .requestMatchers("/api/initiatives/**").permitAll()
+                        .requestMatchers("/api/analytics/**").permitAll()
+
 
 
 

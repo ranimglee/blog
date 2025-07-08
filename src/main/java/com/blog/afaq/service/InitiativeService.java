@@ -79,4 +79,7 @@ public class InitiativeService {
         response.setCreatedAt(initiative.getCreatedAt());
         return response;
     }
+    public long getTotalInitiatives() {
+        return initiativeRepository.count();
+    }
 }

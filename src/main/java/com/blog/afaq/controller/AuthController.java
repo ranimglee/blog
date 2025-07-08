@@ -24,7 +24,6 @@ public class AuthController {
     private final AuthService authService;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
-    private final ResetCodeService resetCodeService;
 
     @PostMapping("/register")
     public ResponseEntity<UserRegisterResponse> register(@RequestBody RegisterRequest request) {
