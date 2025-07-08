@@ -21,7 +21,8 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI customOpenAPI(Environment env) {
 
-        String serverUrl = "http://localhost:8080";
+       // String serverUrl = "http://localhost:8080";
+        String serverUrl = "https://blog-production-5144.up.railway.app";
 
         return new OpenAPI()
                 .info(new Info()
