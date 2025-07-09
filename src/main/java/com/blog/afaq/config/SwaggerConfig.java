@@ -19,7 +19,10 @@ public class SwaggerConfig {
     private static final String SECURITY_SCHEME_NAME = "BearerAuth";
 
     @Bean
-    public OpenAPI customOpenAPI() {
+    public OpenAPI customOpenAPI(Environment env) {
+
+        String serverUrl = "https://blog-production-5144.up.railway.app";
+
         return new OpenAPI()
                 .info(new Info()
                         .title("blog API")
@@ -32,10 +35,8 @@ public class SwaggerConfig {
                                         .name("Authorization")
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
-                                        .bearerFormat("JWT")))
-                .servers(List.of(
-                        new Server().url("https://blog-production-5144.up.railway.app")
-                ));
+                                        .bearerFormat("JWT")
+                                        .description("JWT Bearer Token authentication")))
+                .servers(List.of(new Server().url(serverUrl)));
     }
-
 }
