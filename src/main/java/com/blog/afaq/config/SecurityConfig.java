@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -36,6 +37,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(Customizer.withDefaults())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
@@ -44,10 +46,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/ressources/**").permitAll()
                         .requestMatchers("/api/initiatives/**").permitAll()
                         .requestMatchers("/api/analytics/**").permitAll()
-
-
-
-
                         .requestMatchers( "/public/**").permitAll()
                         .requestMatchers("/api/users/verify-email").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
