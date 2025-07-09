@@ -39,7 +39,6 @@ com\blog\afaq\exception\UserNotFoundException.class
 com\blog\afaq\repository\ContactMessageRepository.class
 com\blog\afaq\exception\ResetCodeDeliveryException.class
 com\blog\afaq\dto\request\ContactMessageRequest.class
-com\blog\afaq\config\CorsConfig$1.class
 com\blog\afaq\exception\InvalidResetCodeException.class
 com\blog\afaq\exception\PhoneNumberAlreadyExistsException.class
 com\blog\afaq\dto\request\ArticleRequest.class
