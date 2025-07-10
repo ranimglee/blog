@@ -46,7 +46,7 @@ public class NewsletterService {
     }
 
     private void sendConfirmationEmail(Subscriber subscriber) {
-        String confirmLink = "http://localhost:8080/public/newsletter/confirm?token=" + subscriber.getConfirmationToken();
+        String confirmLink = "https://blog-production-5144.up.railway.app/public/newsletter/confirm?token=" + subscriber.getConfirmationToken();
 
         // Load template context
         Context context = new Context();

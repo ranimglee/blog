@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/public/newsletter")
+@RequestMapping("sc")
 @RequiredArgsConstructor
 public class NewsletterController {
 
