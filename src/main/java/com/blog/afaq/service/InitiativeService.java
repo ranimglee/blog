@@ -44,7 +44,7 @@ public class InitiativeService {
         newsletterService.notifySubscribersAboutNewArticle(
                 initiative.getTitle(),
                 initiative.getSubTitle(),
-                "http://localhost:3000/article/" + initiative.getId() // adjust to your frontend
+                "https://efaq.netlify.app/projects/" + initiative.getId() // adjust to your frontend
         );
 
         return mapToResponse(saved);

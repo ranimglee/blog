@@ -35,7 +35,7 @@ public class ArticleService {
         newsletterService.notifySubscribersAboutNewArticle(
                 saved.getTitle(),
                 saved.getDescription(),
-                "http://localhost:3000/public/get-article-by/" + saved.getId() // adjust to your frontend
+                "https://efaq.netlify.app/article/" + saved.getId() // adjust to your frontend
         );
 
         return mapToResponse(saved);

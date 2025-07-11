@@ -70,7 +70,7 @@ public class AuthService {
         token.setExpiresAt(LocalDateTime.now().plusDays(1));
         verificationTokenRepository.save(token);
 
-        String confirmationLink = "http://localhost:8080/auth/verify-email?token=" + token.getToken();
+        String confirmationLink = "https://blog-production-5144.up.railway.app/auth/verify-email?token=" + token.getToken();
         emailService.sendEmailConfirmation(user.getEmail(), confirmationLink);
         return new UserRegisterResponse(
                 user.getFirstname(),

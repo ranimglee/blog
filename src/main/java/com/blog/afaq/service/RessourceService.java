@@ -54,7 +54,7 @@ public class RessourceService {
         newsletterService.notifySubscribersAboutNewArticle(
                 ressource.getTitre(),
                 ressource.getDescription(),
-                "http://localhost:3000/article/" + ressource.getId() // adjust to your frontend
+                "https://efaq.netlify.app/resources/" + ressource.getId() // adjust to your frontend
         );
 
         return toDto(ressource);
