@@ -77,12 +77,7 @@ public class UserController {
     }
 
 
-    @PutMapping("/ban-user/{id}")
-    public ResponseEntity<BannedUserDto> banUser(@PathVariable String id) {
-        BannedUserDto bannedUser = userService.banUser(id);
-        return ResponseEntity.ok(bannedUser);
-    }
-
+  
 
 
 

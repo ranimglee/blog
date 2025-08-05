@@ -1,7 +1,10 @@
 package com.blog.afaq.service;
 
 import com.blog.afaq.dto.response.MonthlyAccessStat;
+import com.blog.afaq.dto.response.UserDto;
+import com.blog.afaq.model.Role;
 import com.blog.afaq.repository.AccessLogRepository;
+import com.blog.afaq.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +22,7 @@ import java.util.Map;
 public class AnalyticsService {
 
     private final AccessLogRepository accessLogRepository;
+    private final UserRepository userRepository;
 
     public long getTotalVisitorCount() {
         return accessLogRepository.count();
@@ -64,6 +68,9 @@ public class AnalyticsService {
 
         return response;
     }
-
+        
+    public List<UserDto> getAllNonAdminUsers() {
+        return userRepository.findByRole(Role.USER);
+    }
 
 }

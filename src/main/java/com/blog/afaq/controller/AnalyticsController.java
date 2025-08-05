@@ -1,6 +1,7 @@
 package com.blog.afaq.controller;
 
 import com.blog.afaq.dto.response.MonthlyAccessStat;
+import com.blog.afaq.dto.response.UserDto;
 import com.blog.afaq.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,7 @@ public class AnalyticsController {
     private final InitiativeService initiativeService;
     private final RessourceService ressourceService;
     private final CommentService commentService;
+
 
     @GetMapping("/traffic")
     public List<MonthlyAccessStat> getTrafficStats() {
@@ -48,5 +50,8 @@ public class AnalyticsController {
     public Map<String, Long> getCommentStatistics() {
         return commentService.getCommentStats();
     }
-
+    @GetMapping("/users/non-admin")
+    public List<UserDto> getNonAdminUsers() {
+        return analyticsService.getAllNonAdminUsers();
+    }
 }
