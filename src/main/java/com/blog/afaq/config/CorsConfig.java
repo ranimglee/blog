@@ -23,7 +23,9 @@ public class CorsConfig {
                 "https://efaq.netlify.app",
                 "https://efaqadmin.netlify.app",
                 "https://blog-m2jm.onrender.com",
-                "http://localhost:8081"
+                "http://localhost:8081",
+                "http://localhost:8080"   // Add this line
+
         ));
         config.setAllowedHeaders(Arrays.asList(
                 HttpHeaders.ORIGIN,
