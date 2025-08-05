@@ -22,7 +22,7 @@ public class CorsConfig {
         config.setAllowedOrigins(Arrays.asList(
                 "https://efaq.netlify.app",
                 "https://efaqadmin.netlify.app",
-                "https://blog-production-5144.up.railway.app",
+                "https://blog-m2jm.onrender.com",
                 "http://localhost:8081"
         ));
         config.setAllowedHeaders(Arrays.asList(
