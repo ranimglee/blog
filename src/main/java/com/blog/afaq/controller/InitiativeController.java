@@ -2,6 +2,7 @@ package com.blog.afaq.controller;
 
 
 import com.blog.afaq.dto.request.InitiativeRequest;
+import com.blog.afaq.dto.response.ArticleResponse;
 import com.blog.afaq.dto.response.ImageUploadResponse;
 import com.blog.afaq.dto.response.InitiativeResponse;
 import com.blog.afaq.service.CloudinaryService;
@@ -56,5 +57,9 @@ public class InitiativeController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
+    }
+    @GetMapping(params = "lang")
+    public List<InitiativeResponse> getInitiativesByLanguage(@RequestParam String lang) {
+        return initiativeService.getInitiativesByLanguage(lang);
     }
 }

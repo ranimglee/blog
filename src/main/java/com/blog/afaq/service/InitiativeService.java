@@ -2,6 +2,7 @@ package com.blog.afaq.service;
 
 
 import com.blog.afaq.dto.request.InitiativeRequest;
+import com.blog.afaq.dto.response.ArticleResponse;
 import com.blog.afaq.dto.response.InitiativeResponse;
 import com.blog.afaq.model.Initiative;
 import com.blog.afaq.repository.InitiativeRepository;
@@ -82,7 +83,12 @@ public class InitiativeService {
         response.setLanguage(initiative.getLanguage());
         return response;
     }
-    public long getTotalInitiatives() {
-        return initiativeRepository.count();
+
+    public List<InitiativeResponse> getInitiativesByLanguage(String language) {
+        return initiativeRepository.findAll()
+                .stream()
+                .filter(article -> article.getLanguage().name().equalsIgnoreCase(language))
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 }

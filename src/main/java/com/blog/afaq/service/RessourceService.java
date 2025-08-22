@@ -1,5 +1,6 @@
 package com.blog.afaq.service;
 
+import com.blog.afaq.dto.response.ArticleResponse;
 import com.blog.afaq.dto.response.RessourceResponse;
 import com.blog.afaq.exception.ResourceNotFoundException;
 import com.blog.afaq.model.*;
@@ -22,6 +23,7 @@ import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -103,5 +105,12 @@ public class RessourceService {
     public long getTotalResources() {
         return ressourceRepository.count();
 
+    }
+    public List<RessourceResponse> getResourcesByLanguage(String language) {
+        return ressourceRepository.findAll()
+                .stream()
+                .filter(r -> r.getLanguage().name().equalsIgnoreCase(language))
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 }

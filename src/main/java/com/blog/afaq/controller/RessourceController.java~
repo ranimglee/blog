@@ -1,6 +1,5 @@
 package com.blog.afaq.controller;
 
-import com.blog.afaq.dto.response.ArticleResponse;
 import com.blog.afaq.dto.response.RessourceResponse;
 
 import com.blog.afaq.model.FileType;
@@ -121,8 +120,5 @@ public class RessourceController {
         ressourceService.delete(id);
         return ResponseEntity.noContent().build();
     }
-    @GetMapping(params = "lang")
-    public List<RessourceResponse> getResourcesByLanguage(@RequestParam String lang) {
-        return ressourceService.getResourcesByLanguage(lang);
-    }
+
 }
