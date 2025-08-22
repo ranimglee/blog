@@ -2,11 +2,8 @@ package com.blog.afaq.service;
 
 import com.blog.afaq.dto.response.RessourceResponse;
 import com.blog.afaq.exception.ResourceNotFoundException;
-import com.blog.afaq.model.FileType;
-import com.blog.afaq.model.ResourceCategory;
-import com.blog.afaq.model.Ressource;
+import com.blog.afaq.model.*;
 
-import com.blog.afaq.model.Subscriber;
 import com.blog.afaq.repository.RessourceRepository;
 import com.blog.afaq.repository.SubscriberRepository;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +33,7 @@ public class RessourceService {
 
 
     public RessourceResponse uploadRessource(MultipartFile file, String titre, String description,
-                                             ResourceCategory category, FileType fileType) {
+                                             ResourceCategory category, FileType fileType, Language language) {
         String fileUrl = cloudinaryService.uploadFile(file, fileType.name());  // upload sur Cloudinary
 
         Ressource ressource = Ressource.builder()
@@ -48,6 +45,7 @@ public class RessourceService {
                 .fileUrl(fileUrl)
                 .originalFilename(file.getOriginalFilename()) // <--- stocker le nom original ici
                 .createdAt(new Date())
+                .language(language)
                 .build();
 
         ressourceRepository.save(ressource);

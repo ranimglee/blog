@@ -1,6 +1,7 @@
 package com.blog.afaq.controller;
 
 import com.blog.afaq.dto.request.ChangePasswordRequest;
+import com.blog.afaq.dto.request.ResetPasswordRequest;
 import com.blog.afaq.dto.request.UpdateUserProfileRequest;
 import com.blog.afaq.dto.response.*;
 import com.blog.afaq.exception.InvalidTokenException;
@@ -84,7 +85,11 @@ public class UserController {
     }
 
 
-
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request.email(), request.code(), request.newPassword());
+        return ResponseEntity.ok("Password has been reset successfully.");
+    }
 
 
 

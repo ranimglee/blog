@@ -1,7 +1,9 @@
 package com.blog.afaq.dto.response;
 
 import com.blog.afaq.model.FileType;
+import com.blog.afaq.model.Language;
 import com.blog.afaq.model.ResourceCategory;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Data;
 
@@ -19,4 +21,6 @@ public class RessourceResponse {
     private String fileUrl;
     private Date createdAt;
     private String originalFilename;
+    private Language language;
+
 }

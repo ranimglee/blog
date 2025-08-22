@@ -22,5 +22,6 @@ public class Initiative {
     private String imageUrl;
     private String country;
     private Instant createdAt;
+    private Language language;
 
 }

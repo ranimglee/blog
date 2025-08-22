@@ -3,6 +3,7 @@ package com.blog.afaq.controller;
 import com.blog.afaq.dto.response.RessourceResponse;
 
 import com.blog.afaq.model.FileType;
+import com.blog.afaq.model.Language;
 import com.blog.afaq.model.ResourceCategory;
 import com.blog.afaq.service.RessourceService;
 import lombok.RequiredArgsConstructor;
@@ -34,9 +35,10 @@ public class RessourceController {
             @RequestParam("titre") String titre,
             @RequestParam("description") String description,
             @RequestParam("category") ResourceCategory category,
-            @RequestParam("fileType") FileType fileType
+            @RequestParam("fileType") FileType fileType,
+            @RequestParam("language") Language language
     ) {
-        RessourceResponse response = ressourceService.uploadRessource(file, titre, description, category, fileType);
+        RessourceResponse response = ressourceService.uploadRessource(file, titre, description, category, fileType,language);
         return ResponseEntity.ok(response);
     }
 

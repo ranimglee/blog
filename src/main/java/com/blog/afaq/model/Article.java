@@ -23,4 +23,6 @@ public class Article {
     private ArticleType type;
     private String contenu;
     private String imageUrl;
+    private Language language;
+
 }

@@ -1,6 +1,7 @@
 package com.blog.afaq.dto.request;
 
 import com.blog.afaq.model.ArticleType;
+import com.blog.afaq.model.Language;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -25,4 +26,8 @@ public class ArticleRequest {
 
     @NotBlank
     private String imageUrl;
+
+    @NotBlank
+    private Language language;
+
 }

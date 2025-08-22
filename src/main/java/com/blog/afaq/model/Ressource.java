@@ -25,5 +25,7 @@ public class Ressource {
     private String fileUrl;
     private Date createdAt;
     private String originalFilename;
+    private Language language;
+
 
 }

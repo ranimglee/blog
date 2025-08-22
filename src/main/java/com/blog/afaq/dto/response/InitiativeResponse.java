@@ -1,5 +1,6 @@
 package com.blog.afaq.dto.response;
 
+import com.blog.afaq.model.Language;
 import lombok.Data;
 
 import java.time.Instant;
@@ -13,4 +14,5 @@ public class InitiativeResponse {
     private String imageUrl;
     private String country;
     private Instant createdAt;
+    private Language language;
 }
