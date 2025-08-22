@@ -83,7 +83,9 @@ public class InitiativeService {
         response.setLanguage(initiative.getLanguage());
         return response;
     }
-
+    public long getTotalInitiatives() {
+        return initiativeRepository.count();
+    }
     public List<InitiativeResponse> getInitiativesByLanguage(String language) {
         return initiativeRepository.findAll()
                 .stream()
