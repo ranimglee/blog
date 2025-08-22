@@ -61,8 +61,5 @@ public class ArticleController {
             return ResponseEntity.badRequest().build();
         }
     }
-    @GetMapping(params = "lang")
-    public List<ArticleResponse> getArticlesByLanguage(@RequestParam String lang) {
-        return articleService.getArticlesByLanguage(lang);
-    }
+
 }

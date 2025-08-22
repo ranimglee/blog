@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -89,12 +88,5 @@ public class ArticleService {
     public long getTotalArticles() {
         return articleRepository.count();
     }
-    // New method to get articles by language
-    public List<ArticleResponse> getArticlesByLanguage(String language) {
-        return articleRepository.findAll()
-                .stream()
-                .filter(article -> article.getLanguage().name().equalsIgnoreCase(language))
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
-    }
+
 }
