@@ -89,6 +89,7 @@ public class RessourceService {
                 .fileUrl(r.getFileUrl())
                 .createdAt(r.getCreatedAt())
                 .originalFilename(r.getOriginalFilename())
+                .language(r.getLanguage())
                 .build();
     }
 

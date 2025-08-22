@@ -24,7 +24,7 @@ public class ArticleController {
 
 
     @PostMapping
-    public ResponseEntity<ArticleResponse> create(@Valid @RequestBody ArticleRequest request) {
+    public ResponseEntity<ArticleResponse> create( @RequestBody ArticleRequest request) {
         return ResponseEntity.ok(articleService.createArticle(request));
     }
 

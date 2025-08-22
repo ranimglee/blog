@@ -24,6 +24,7 @@ public class ArticleRequest {
     @NotBlank
     private String contenu;
 
+    @NotBlank
     private String imageUrl;
 
     @NotNull

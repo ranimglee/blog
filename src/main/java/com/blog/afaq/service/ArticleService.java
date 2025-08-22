@@ -29,6 +29,7 @@ public class ArticleService {
                 .contenu(request.getContenu())
                 .createdAt(new Date())
                 .imageUrl(request.getImageUrl())
+                .language(request.getLanguage())
                 .build();
 
         Article saved = articleRepository.save(article);
@@ -60,6 +61,7 @@ public class ArticleService {
                     existing.setAuteur(request.getAuteur());
                     existing.setType(request.getType());
                     existing.setContenu(request.getContenu());
+                    existing.setLanguage(request.getLanguage());
                     return mapToResponse(articleRepository.save(existing));
                 })
                 .orElseThrow(() -> new RuntimeException("Article not found"));
@@ -79,6 +81,7 @@ public class ArticleService {
                 .contenu(article.getContenu())
                 .createdAt(article.getCreatedAt())
                 .imageUrl(article.getImageUrl())
+                .language(article.getLanguage())
                 .build();
     }
 
