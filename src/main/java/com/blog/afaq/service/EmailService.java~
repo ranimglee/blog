@@ -25,7 +25,7 @@ public class EmailService {
 
     @Async
     public void sendWelcomeEmail(String recipientEmail, String password, String role) {
-        String subject = "Welcome to Afaq - Your Account Details";
+        String subject = "Welcome to Leggy - Your Account Details";
 
         String body = """
                     <html>
@@ -89,7 +89,7 @@ public class EmailService {
                     <body>
                         <div class="container">
                             <div class="header">
-                                Welcome to Afaq! 
+                                Welcome to Leggy! 
                             </div>
                             <div class="content">
                                 <h2>Dear %s,</h2>
@@ -105,7 +105,7 @@ public class EmailService {
                                 <p>Thank you for joining <strong>blog</strong>! If you have any questions, feel free to contact us.</p>
                             </div>
                             <div class="footer">
-                                <p>Best regards,<br><strong>Afaq Team</strong></p>
+                                <p>Best regards,<br><strong>Leggy Team</strong></p>
                                 <p>📧 <a href="mailto:support@blog.com">Contact Support</a> | 🌍 <a href="https://blog.com">Visit Website</a></p>
                             </div>
                         </div>
@@ -127,16 +127,16 @@ public class EmailService {
 
     @Async
     public void sendEmailConfirmation(String recipientEmail, String confirmationLink) {
-        String subject = "📧 Confirm Your Email - Afaq";
+        String subject = "📧 Confirm Your Email - Leggy";
         String body = """
                     <html>
                     <body>
                         <h2>Hello %s,</h2>
-                        <p>Thank you for registering on Afaq!</p>
+                        <p>Thank you for registering on Leggy!</p>
                         <p>Please confirm your email by clicking the button below:</p>
                         <p><a href="%s" style="background-color: #E64A19; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Confirm Email</a></p>
                         <p>This link will expire in 24 hours.</p>
-                        <p>Best regards, <br> Afaq Team</p>
+                        <p>Best regards, <br> Leggy Team</p>
                     </body>
                     </html>
                 """.formatted(recipientEmail, confirmationLink);

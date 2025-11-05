@@ -21,8 +21,8 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI customOpenAPI(Environment env) {
 
-      // String serverUrl = "https://blog-m2jm.onrender.com";
-        String serverUrl = "http://localhost:8080";
+       String serverUrl = "https://blog-m2jm.onrender.com";
+        //String serverUrl = "http://localhost:8080";
 
 
         return new OpenAPI()
