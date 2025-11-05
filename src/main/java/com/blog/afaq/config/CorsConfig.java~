@@ -18,7 +18,7 @@ public class CorsConfig {
         final CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowCredentials(true);
-        config.setAllowedOriginPatterns(Arrays.asList(
+        config.setAllowedOrigins(Arrays.asList(
                 "https://efaq.netlify.app",
                 "https://efaqadmin.netlify.app",
                 "https://blog-m2jm.onrender.com",
