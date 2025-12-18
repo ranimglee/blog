@@ -8,16 +8,14 @@ import com.blog.afaq.model.User;
 import com.blog.afaq.repository.UserRepository;
 import com.blog.afaq.security.JwtTokenProvider;
 import com.blog.afaq.service.AuthService;
-import com.blog.afaq.service.ResetCodeService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @AllArgsConstructor
 public class AuthController {
 

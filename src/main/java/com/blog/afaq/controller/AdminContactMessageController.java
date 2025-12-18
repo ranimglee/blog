@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/contact-messages")
+@RequestMapping("/api/admin/contact-messages")
 @RequiredArgsConstructor
 public class AdminContactMessageController {
 

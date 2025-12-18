@@ -2,7 +2,7 @@ spring.application.name=blog
 server.port=8080
 server.address=0.0.0.0
 
-spring.data.mongodb.uri=mongodb+srv://ranimabassi20:d6xDb5TokZeZ0cRQ@cluster0.sa8qjm1.mongodb.net/blog?retryWrites=true&w=majority
+spring.data.mongodb.uri=mongodb://ranimabassi20:d6xDb5TokZeZ0cRQ@cluster0-shard-00-00.sa8qjm1.mongodb.net:27017,cluster0-shard-00-01.sa8qjm1.mongodb.net:27017,cluster0-shard-00-02.sa8qjm1.mongodb.net:27017/blog?ssl=true&replicaSet=atlas-xxxxx-shard-0&authSource=admin&retryWrites=true&w=majority
 
 # JWT configuration
 app.jwt-secret-access=zM7Lk9X2dHpAJuR3VeBqYtN1WgMfQs5C
@@ -28,14 +28,13 @@ logging.level.org.springdoc=DEBUG
 
 spring.mail.host=smtp.gmail.com
 spring.mail.port=587
-spring.mail.username=legy.services@gmail.com
-spring.mail.password=pkcp jtpa lajd fsvy
+
+spring.mail.username=${MAIL_USERNAME}
+spring.mail.password=${MAIL_PASSWORD}
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 
 
-spring.mail.username=${MAIL_USERNAME}
-spring.mail.password=${MAIL_PASSWORD}
 
 spring.mail.properties.mail.smtp.connectiontimeout=5000
 spring.mail.properties.mail.smtp.timeout=5000

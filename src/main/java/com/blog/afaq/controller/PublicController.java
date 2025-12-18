@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/public")
+@RequestMapping("/api/public")
 @RequiredArgsConstructor
 public class PublicController {
     private final InitiativeService initiativeService;
