@@ -13,6 +13,8 @@ import com.blog.afaq.repository.UserRepository;
 import com.blog.afaq.repository.VerificationTokenRepository;
 import com.blog.afaq.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,7 +25,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.blog.afaq.service.EmailService.log;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +39,7 @@ public class AuthService {
     private final EmailService emailService;
     private final ResetCodeService resetCodeService;
     private final AccessLogRepository accessLogRepository;
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final ConcurrentHashMap<String, FailedLoginAttempt> loginAttempts = new ConcurrentHashMap<>();
 
@@ -58,6 +60,7 @@ public class AuthService {
         user.setCountry(request.getCountry());
         user.setPhoneNumber(request.getPhoneNumber());
         user.setCreatedAt(Instant.now());
+        user.setStatus(UserStatus.PENDING);
 
 
         userRepository.save(user);
