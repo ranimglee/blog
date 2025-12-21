@@ -1,129 +1,25 @@
 package com.blog.afaq.service;
 
-import com.blog.afaq.model.Ressource;
-import com.blog.afaq.model.Subscriber;
-import com.blog.afaq.repository.SubscriberRepository;
+
+import com.blog.afaq.exception.EmailSendingException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
 public class EmailService {
     private static final Logger log = LoggerFactory.getLogger(EmailService.class);
     private final JavaMailSender mailSender;
-    private final SubscriberRepository subscriberRepository;
 
-    @Async
-    public void sendWelcomeEmail(String recipientEmail, String password, String role) {
-        String subject = "Welcome to Afaq - Your Account Details";
 
-        String body = """
-                    <html>
-                    <head>
-                        <style>
-                            body {
-                                font-family: 'Arial', sans-serif;
-                                background-color: #F9F9F9;
-                                margin: 0;
-                                padding: 0;
-                            }
-                            .container {
-                                max-width: 600px;
-                                margin: 20px auto;
-                                background-color: #FFFFFF;
-                                border-radius: 10px;
-                                padding: 25px;
-                                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-                            }
-                            .header {
-                                background-color: #E64A19;
-                                padding: 20px;
-                                text-align: center;
-                                color: #FFFFFF;
-                                font-size: 24px;
-                                font-weight: bold;
-                                border-top-left-radius: 10px;
-                                border-top-right-radius: 10px;
-                            }
-                            .content {
-                                padding: 20px;
-                                text-align: center;
-                                color: #333333;
-                                font-size: 16px;
-                                line-height: 1.6;
-                            }
-                            .content h2 {
-                                color: #388E3C;
-                                font-size: 22px;
-                                margin-bottom: 10px;
-                            }
-                            .credentials {
-                                font-weight: bold;
-                                text-align: center;
-                                margin: 20px 0;
-                                font-size: 18px;
-                            }
-                            .footer {
-                                text-align: center;
-                                margin-top: 20px;
-                                font-size: 14px;
-                                color: #666666;
-                            }
-                            .footer a {
-                                color: #E64A19;
-                                text-decoration: none;
-                                font-weight: bold;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="container">
-                            <div class="header">
-                                Welcome to Afaq! 
-                            </div>
-                            <div class="content">
-                                <h2>Dear %s,</h2>
-                                <p>Your account has been successfully created as a <strong>%s</strong>.</p>
-                                <p>Below are your login details:</p>
-                                
-                                <div class="credentials">
-                                    👤 <strong>Email:</strong> %s<br>
-                                    🔑 <strong>Password:</strong> %s
-                                </div>
-
-                                <p>🔒 For security reasons, we strongly recommend changing your password after logging in.</p>
-                                <p>Thank you for joining <strong>blog</strong>! If you have any questions, feel free to contact us.</p>
-                            </div>
-                            <div class="footer">
-                                <p>Best regards,<br><strong>Afaq Team</strong></p>
-                                <p>📧 <a href="mailto:support@blog.com">Contact Support</a> | 🌍 <a href="https://blog.com">Visit Website</a></p>
-                            </div>
-                        </div>
-                    </body>
-                    </html>
-                """.formatted(recipientEmail, role, recipientEmail, password);
-
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setTo(recipientEmail);
-            helper.setSubject(subject);
-            helper.setText(body, true);
-            mailSender.send(message);
-        } catch (MessagingException e) {
-            log.error("Failed to send welcome email to {}: {}", recipientEmail, e.getMessage());
-        }
-    }
 
     @Async
     public void sendEmailConfirmation(String recipientEmail, String confirmationLink) {
@@ -157,7 +53,7 @@ public class EmailService {
             helper.setText(body, true);
             mailSender.send(message);
         } catch (MessagingException e) {
-            throw new RuntimeException("Failed to send email: " + e.getMessage());
+            throw new EmailSendingException("Failed to send email to " + to, e);
         }
     }
 
@@ -203,7 +99,7 @@ public class EmailService {
 
             mailSender.send(message);
         } catch (MessagingException e) {
-            throw new RuntimeException("Failed to send email", e);
+            throw new EmailSendingException("Failed to send email to " + to, e);
         }
     }
 

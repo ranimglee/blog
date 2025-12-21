@@ -1,8 +1,5 @@
 package com.blog.afaq.service;
 
-
-
-import com.blog.afaq.dto.response.MonthlyAccessStat;
 import com.blog.afaq.dto.request.LoginRequest;
 import com.blog.afaq.dto.request.RegisterRequest;
 import com.blog.afaq.dto.request.UpdateUserProfileRequest;
@@ -16,17 +13,18 @@ import com.blog.afaq.repository.UserRepository;
 import com.blog.afaq.repository.VerificationTokenRepository;
 import com.blog.afaq.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +39,7 @@ public class AuthService {
     private final EmailService emailService;
     private final ResetCodeService resetCodeService;
     private final AccessLogRepository accessLogRepository;
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final ConcurrentHashMap<String, FailedLoginAttempt> loginAttempts = new ConcurrentHashMap<>();
 
@@ -70,8 +69,7 @@ public class AuthService {
         token.setExpiresAt(LocalDateTime.now().plusDays(1));
         verificationTokenRepository.save(token);
 
-        String confirmationLink = "https://blog-m2jm.onrender.com/auth/verify-email?token=" + token.getToken();
-        //String confirmationLink = "http://localhost:8080/auth/verify-email?token=" + token.getToken();
+        String confirmationLink = "http://localhost:8080/auth/verify-email?token=" + token.getToken();
 
         emailService.sendEmailConfirmation(user.getEmail(), confirmationLink);
         return new UserRegisterResponse(
@@ -224,31 +222,55 @@ public class AuthService {
 
 
     public void sendResetCode(String email) {
+        log.info("📩 Attempting to send reset code to {}", email);
+
         Optional<User> userOpt = userRepository.findByEmail(email);
-        if (userOpt.isEmpty() || !userOpt.get().getStatus().equals(UserStatus.ACTIVE)) return;
+
+        if (userOpt.isEmpty()) {
+            log.warn("⚠️ No user found with email: {}", email);
+            return;
+        }
 
         User user = userOpt.get();
+
+        if (!user.getStatus().equals(UserStatus.ACTIVE)) {
+            log.warn("⛔ User {} is not active. Cannot send reset code.", email);
+            return;
+        }
+
         try {
             String code = resetCodeService.generateCode(email);
+            log.info("🔑 Generated reset code for user {}: {}", email, code);
+
             emailService.sendResetPasswordCode(user.getEmail(), code);
+            log.info("✅ Reset code successfully sent to {}", email);
 
         } catch (Exception e) {
-            throw new ResetCodeDeliveryException("Failed to send reset code for user: " + user.getEmail());
+            log.error("❌ Failed to send reset code for user {}: {}", email, e.getMessage());
+            throw new ResetCodeDeliveryException("Failed to send reset code for user: " + email, e);
         }
     }
 
     public void resetPassword(String email, String otpCode, String newPassword) {
+        log.info("🔄 Attempting to reset password for user {}", email);
+
         if (!resetCodeService.validateCode(email, otpCode)) {
+            log.warn("⚠️ Invalid or expired OTP code for user {}", email);
             throw new InvalidResetCodeException("Invalid or expired OTP.");
         }
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new InvalidResetCodeException("Invalid user."));
+                .orElseThrow(() -> {
+                    log.warn("⚠️ No user found with email: {}", email);
+                    return new InvalidResetCodeException("Invalid user.");
+                });
 
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
+        log.info("✅ Password successfully reset for user {}", email);
 
         resetCodeService.deleteCode(email);
+        log.info("🗑️ OTP code deleted for user {}", email);
     }
 
 

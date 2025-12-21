@@ -5,6 +5,7 @@ import com.blog.afaq.dto.response.CommentResponse;
 import com.blog.afaq.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,13 +27,13 @@ public class CommentController {
         return ResponseEntity.ok(commentService.getApprovedCommentsForArticle(articleId));
     }
 
-    // Pour admin uniquement
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/pending")
     public ResponseEntity<List<CommentResponse>> getPendingComments() {
         return ResponseEntity.ok(commentService.getPendingComments());
     }
 
-    // Approve by admin
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/approve/{id}")
     public ResponseEntity<Void> approveComment(@PathVariable String id) {
         commentService.approveComment(id);
