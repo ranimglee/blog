@@ -16,7 +16,12 @@ public class GlobalExceptionHandler {
             EmailAlreadyExistsException ex) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(new AuthResponse(ex.getMessage(), null));
+                .body(new AuthResponse(
+                        ex.getMessage(),
+                        null,
+                        "EMAIL_ALREADY_EXISTS",
+                        null
+                ));
     }
 
     // 401 - Wrong email or password
@@ -25,8 +30,12 @@ public class GlobalExceptionHandler {
             InvalidCredentialsException ex) {
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
-                .body(new AuthResponse(ex.getMessage(), null));
+                .body(new AuthResponse(
+                        ex.getMessage(),
+                        "INVALID_CREDENTIALS"
+                ));
     }
+
 
     // 423 - Too many attempts
     @ExceptionHandler(UserLockedException.class)
@@ -34,7 +43,10 @@ public class GlobalExceptionHandler {
             UserLockedException ex) {
         return ResponseEntity
                 .status(HttpStatus.LOCKED)
-                .body(new AuthResponse(ex.getMessage(), null));
+                .body(new AuthResponse(
+                        ex.getMessage(),
+                        "ACCOUNT_LOCKED"
+                ));
     }
 
     // 403 - Email not verified
@@ -43,7 +55,10 @@ public class GlobalExceptionHandler {
             UserNotActiveException ex) {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
-                .body(new AuthResponse(ex.getMessage(), null));
+                .body(new AuthResponse(
+                        ex.getMessage(),
+                        "ACCOUNT_NOT_ACTIVE"
+                ));
     }
 
     // 403 - Banned user
@@ -52,8 +67,12 @@ public class GlobalExceptionHandler {
             AccessDeniedException ex) {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
-                .body(new AuthResponse(ex.getMessage(), null));
+                .body(new AuthResponse(
+                        ex.getMessage(),
+                        "ACCOUNT_BANNED"
+                ));
     }
+
 
     // 404 - User not found
     @ExceptionHandler(UserNotFoundException.class)
@@ -78,6 +97,22 @@ public class GlobalExceptionHandler {
     public ResponseEntity<AuthResponse> handleGeneric(Exception ex) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new AuthResponse("Internal server error", null));
+                .body(new AuthResponse(
+                        "Internal server error",
+                        "INTERNAL_ERROR"
+                ));
     }
+    @ExceptionHandler(PhoneNumberAlreadyExistsException.class)
+    public ResponseEntity<AuthResponse> handlePhoneExists(
+            PhoneNumberAlreadyExistsException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new AuthResponse(
+                        ex.getMessage(),
+                        null,
+                        "PHONE_ALREADY_EXISTS",
+                        null
+                ));
+    }
+
 }
