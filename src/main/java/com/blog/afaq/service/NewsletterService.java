@@ -48,7 +48,7 @@ public class NewsletterService {
     }
 
     private void sendConfirmationEmail(Subscriber subscriber) {
-        String confirmLink = "http://localhost:8080/public/newsletter/confirm?token=" + subscriber.getConfirmationToken();
+        String confirmLink = "http://51.75.200.76/api/public/newsletter/confirm?token=" + subscriber.getConfirmationToken();
 
         // Load template context
         Context context = new Context();
@@ -91,7 +91,7 @@ public class NewsletterService {
             ctx.setVariable("title", title);
             ctx.setVariable("summary", summary);
             ctx.setVariable("url", articleUrl);
-            ctx.setVariable("unsubscribeUrl", "http://localhost:8080/public/newsletter/unsubscribe?email=" +
+            ctx.setVariable("unsubscribeUrl", "http://51.75.200.76/api/public/newsletter/unsubscribe?email=" +
                     URLEncoder.encode(subscriber.getEmail(), StandardCharsets.UTF_8));
 
             String htmlBody = templateEngine.process("new-article-email.html", ctx);
