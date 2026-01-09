@@ -1,12 +1,13 @@
 package com.blog.afaq.controller;
 
+import com.blog.afaq.dto.response.ArticleResponse;
 import com.blog.afaq.dto.response.RessourceResponse;
+
 import com.blog.afaq.model.FileType;
 import com.blog.afaq.model.Language;
 import com.blog.afaq.model.ResourceCategory;
 import com.blog.afaq.service.RessourceService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,7 +24,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/ressources")
 @RequiredArgsConstructor
-@Slf4j
 public class RessourceController {
 
     private final RessourceService ressourceService;
@@ -37,35 +37,34 @@ public class RessourceController {
             @RequestParam("fileType") FileType fileType,
             @RequestParam("language") Language language
     ) {
-        RessourceResponse response = ressourceService.uploadRessource(file, titre, description, category, fileType, language);
-        log.info("📤 Ressource uploaded: {}", response);
+        RessourceResponse response = ressourceService.uploadRessource(file, titre, description, category, fileType,language);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/download/{id}")
     public ResponseEntity<byte[]> downloadById(@PathVariable String id) {
         try {
-            log.info("🟢 Début téléchargement ressource avec id = {}", id);
+            System.out.println("🟢 Début téléchargement ressource avec id = " + id);
 
             RessourceResponse ressource = ressourceService.getById(id);
-            log.info("📄 Récupération ressource : {}", ressource);
+            System.out.println("📄 Récupération ressource : " + ressource);
 
             String fileUrl = ressource.getFileUrl();
             String originalFilename = ressource.getOriginalFilename();
 
-            log.info("🌐 URL du fichier : {}", fileUrl);
-            log.info("📛 Nom original fichier : {}", originalFilename);
+            System.out.println("🌐 URL du fichier : " + fileUrl);
+            System.out.println("📛 Nom original fichier : " + originalFilename);
 
             URL url = new URL(fileUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
 
             String contentType = connection.getContentType();
-            log.info("🔍 Content-Type reçu : {}", contentType);
+            System.out.println("🔍 Content-Type reçu : " + contentType);
 
             if (contentType == null || contentType.isBlank()) {
                 contentType = "application/octet-stream";
-                log.warn("⚠️ Content-Type absent, valeur par défaut appliquée : {}", contentType);
+                System.out.println("⚠️ Content-Type absent, valeur par défaut appliquée : " + contentType);
             }
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -77,7 +76,7 @@ public class RessourceController {
                     outputStream.write(buffer, 0, bytesRead);
                     totalRead += bytesRead;
                 }
-                log.info("📥 Nombre d'octets lus : {}", totalRead);
+                System.out.println("📥 Nombre d'octets lus : " + totalRead);
             }
 
             HttpHeaders headers = new HttpHeaders();
@@ -85,46 +84,43 @@ public class RessourceController {
 
             // Sécuriser le nom de fichier
             String safeFilename = originalFilename != null ? originalFilename.replace("\"", "'") : "fichier.pdf";
-            log.info("📂 Nom de fichier sécurisé pour Content-Disposition : {}", safeFilename);
+            System.out.println("📂 Nom de fichier sécurisé pour Content-Disposition : " + safeFilename);
 
             headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + safeFilename + "\"");
             headers.set("Access-Control-Expose-Headers", "Content-Disposition");
 
-            log.info("✅ Réponse prête avec headers et contenu");
+            System.out.println("✅ Réponse prête avec headers et contenu");
 
             return new ResponseEntity<>(outputStream.toByteArray(), headers, HttpStatus.OK);
 
         } catch (Exception e) {
-            log.error("❌ Erreur lors du téléchargement de la ressource id={}: {}", id, e.getMessage(), e);
+            System.err.println("❌ Erreur lors du téléchargement : " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
+
+
+
+
     @GetMapping
     public ResponseEntity<List<RessourceResponse>> getAll() {
-        List<RessourceResponse> ressources = ressourceService.getAll();
-        log.info("📚 Ressources récupérées : count={}", ressources.size());
-        return ResponseEntity.ok(ressources);
+        return ResponseEntity.ok(ressourceService.getAll());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<RessourceResponse> getById(@PathVariable String id) {
-        RessourceResponse ressource = ressourceService.getById(id);
-        log.info("🔎 Ressource récupérée par id {} : {}", id, ressource);
-        return ResponseEntity.ok(ressource);
+        return ResponseEntity.ok(ressourceService.getById(id));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         ressourceService.delete(id);
-        log.info("🗑 Ressource supprimée id={}", id);
         return ResponseEntity.noContent().build();
     }
-
     @GetMapping(params = "lang")
     public List<RessourceResponse> getResourcesByLanguage(@RequestParam String lang) {
-        List<RessourceResponse> ressources = ressourceService.getResourcesByLanguage(lang);
-        log.info("🌐 Ressources récupérées pour langue '{}': count={}", lang, ressources.size());
-        return ressources;
+        return ressourceService.getResourcesByLanguage(lang);
     }
 }

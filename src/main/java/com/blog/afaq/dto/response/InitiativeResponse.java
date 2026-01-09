@@ -15,4 +15,5 @@ public class InitiativeResponse {
     private String country;
     private Instant createdAt;
     private Language language;
+    private Instant updatedAt;
 }

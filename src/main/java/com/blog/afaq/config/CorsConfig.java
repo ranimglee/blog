@@ -23,6 +23,7 @@ public class CorsConfig {
                 "https://efaqadmin.netlify.app",
                 "https://blog-m2jm.onrender.com",
                 "http://localhost:8081",
+                "http://localhost:8082",
                 "http://51.75.200.76",
 		"http://51.75.200.76:81",
                 "http://localhost:8080"   // Add this line

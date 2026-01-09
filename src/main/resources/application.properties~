@@ -2,7 +2,8 @@ spring.application.name=blog
 server.port=8080
 server.address=0.0.0.0
 
-spring.data.mongodb.uri=mongodb+srv://ranimabassi20:d6xDb5TokZeZ0cRQ@cluster0.sa8qjm1.mongodb.net/blog?retryWrites=true&w=majority
+spring.data.mongodb.uri=mongodb+srv://mongodb:mongodb@mongodb/blog?retryWrites=true&w=majority
+
 # JWT configuration
 app.jwt-secret-access=zM7Lk9X2dHpAJuR3VeBqYtN1WgMfQs5C
 app.jwt-secret-refresh=Uv8pZr0DwEKb5AYnH3LtXxVoCJseTu29!

@@ -1,7 +1,9 @@
 package com.blog.afaq.service;
 
+import com.blog.afaq.exception.EmailSendingException;
 import com.blog.afaq.model.Subscriber;
 import com.blog.afaq.repository.SubscriberRepository;
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -46,8 +48,7 @@ public class NewsletterService {
     }
 
     private void sendConfirmationEmail(Subscriber subscriber) {
-      //  String confirmLink = "https://blog-m2jm.onrender.com/public/newsletter/confirm?token=" + subscriber.getConfirmationToken();
-        String confirmLink = "http://localhost:8080/public/newsletter/confirm?token=" + subscriber.getConfirmationToken();
+        String confirmLink = "http://localhost:8080/api/public/newsletter/confirm?token=" + subscriber.getConfirmationToken();
 
         // Load template context
         Context context = new Context();
@@ -63,8 +64,8 @@ public class NewsletterService {
             helper.setText(htmlBody, true); // true = HTML
 
             mailSender.send(mimeMessage);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to send email", e);
+        } catch (MessagingException e) {
+            throw new EmailSendingException("Failed to send email to " , e);
         }
     }
 
@@ -90,7 +91,7 @@ public class NewsletterService {
             ctx.setVariable("title", title);
             ctx.setVariable("summary", summary);
             ctx.setVariable("url", articleUrl);
-            ctx.setVariable("unsubscribeUrl", "http://localhost:8080/public/newsletter/unsubscribe?email=" +
+            ctx.setVariable("unsubscribeUrl", "http://localhost:8080/api/public/newsletter/unsubscribe?email=" +
                     URLEncoder.encode(subscriber.getEmail(), StandardCharsets.UTF_8));
 
             String htmlBody = templateEngine.process("new-article-email.html", ctx);

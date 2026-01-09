@@ -81,7 +81,6 @@ public class InitiativeService {
         response.setCountry(initiative.getCountry());
         response.setCreatedAt(initiative.getCreatedAt());
         response.setLanguage(initiative.getLanguage());
-        response.setUpdatedAt(initiative.getUpdatedAt());
         return response;
     }
     public long getTotalInitiatives() {

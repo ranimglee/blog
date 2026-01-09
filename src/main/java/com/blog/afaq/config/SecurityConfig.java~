@@ -55,6 +55,7 @@ public class SecurityConfig {
                         // 🔓 AUTH & PUBLIC
                         .requestMatchers(
                                 "/api/auth/**",
+                                "/swagger-ui/**", "/v3/api-docs/**", 
                                 "/api/public/**",
                                 "/api/public/newsletter/**"
                         ).permitAll()
@@ -82,7 +83,9 @@ public class SecurityConfig {
                                 "/api/initiatives/delete-initiative/**",
                                 "/api/initiatives/upload-image-initiative",
                                 "/api/ressources/upload",
-                                "/api/ressources/**"
+                                "/api/ressources/**",
+                                "/api/analytics/**"
+
                         ).hasRole("ADMIN")
 
                         .requestMatchers(
