@@ -81,6 +81,7 @@ public class InitiativeService {
         response.setCountry(initiative.getCountry());
         response.setCreatedAt(initiative.getCreatedAt());
         response.setLanguage(initiative.getLanguage());
+        response.setUpdatedAt(initiative.getUpdatedAt());
         return response;
     }
     public long getTotalInitiatives() {
@@ -93,4 +94,9 @@ public class InitiativeService {
                 .map(this::mapToResponse)
                 .toList();
     }
+
+    public List<Initiative> search(String query) {
+        return initiativeRepository.searchByTitleOrDescription(query, query);
+    }
+
 }

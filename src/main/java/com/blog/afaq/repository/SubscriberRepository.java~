@@ -10,11 +10,10 @@ import java.util.Optional;
 public interface SubscriberRepository extends MongoRepository<Subscriber, String> {
     Subscriber save(Subscriber subscriber);
 
+    Optional<Subscriber> findByEmail(String email);
     Optional<Subscriber> findByConfirmationToken(String token);
 
     void delete(Subscriber subscriber);
 
     boolean existsByEmail(String email);
-
-    Optional<Subscriber> findByUnsubscribeToken(String token);
 }

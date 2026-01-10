@@ -1,23 +1,25 @@
 package com.blog.afaq.service;
 
 import com.blog.afaq.exception.EmailSendingException;
+import com.blog.afaq.exception.NewsletterException;
 import com.blog.afaq.model.Subscriber;
 import com.blog.afaq.repository.SubscriberRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+@Slf4j
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +36,7 @@ public class NewsletterService {
         }
 
         if (subscriberRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("This email is already subscribed.");
+            throw new NewsletterException("EMAIL_ALREADY_SUBSCRIBED");
         }
 
         Subscriber subscriber = new Subscriber();
@@ -42,13 +44,14 @@ public class NewsletterService {
         subscriber.setConsentGiven(true);
         subscriber.setSubscribedAt(Instant.now());
         subscriber.setConfirmationToken(UUID.randomUUID().toString());
+        subscriber.setUnsubscribeToken(UUID.randomUUID().toString());
         subscriberRepository.save(subscriber);
 
         sendConfirmationEmail(subscriber);
     }
 
     private void sendConfirmationEmail(Subscriber subscriber) {
-        String confirmLink = "http://51.75.200.76/api/public/newsletter/confirm?token=" + subscriber.getConfirmationToken();
+        String confirmLink = "https://afaqgulfcoop.com/api/public/newsletter/confirm?token=" + subscriber.getConfirmationToken();
 
         // Load template context
         Context context = new Context();
@@ -61,7 +64,7 @@ public class NewsletterService {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
             helper.setTo(subscriber.getEmail());
             helper.setSubject("Confirm your subscription to Afaq");
-            helper.setText(htmlBody, true); // true = HTML
+            helper.setText(htmlBody, true);
 
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
@@ -84,6 +87,7 @@ public class NewsletterService {
         List<Subscriber> confirmedSubs = subscriberRepository.findAll()
                 .stream()
                 .filter(Subscriber::isConfirmed)
+                .filter(Subscriber::isSubscribed)
                 .toList();
 
         for (Subscriber subscriber : confirmedSubs) {
@@ -91,8 +95,13 @@ public class NewsletterService {
             ctx.setVariable("title", title);
             ctx.setVariable("summary", summary);
             ctx.setVariable("url", articleUrl);
-            ctx.setVariable("unsubscribeUrl", "http://51.75.200.76/api/public/newsletter/unsubscribe?email=" +
-                    URLEncoder.encode(subscriber.getEmail(), StandardCharsets.UTF_8));
+            ctx.setVariable(
+                    "unsubscribeUrl",
+                    "https://afaqgulfcoop.com/api/public/newsletter/unsubscribe?token=" +
+                  //  "http://localhost:8080/api/public/newsletter/unsubscribe?token=" +
+                            subscriber.getUnsubscribeToken()
+            );
+
 
             String htmlBody = templateEngine.process("new-article-email.html", ctx);
 
@@ -104,9 +113,31 @@ public class NewsletterService {
                 helper.setText(htmlBody, true);
                 mailSender.send(msg);
             } catch (Exception e) {
-                System.err.println("Failed to send email to " + subscriber.getEmail());
+                log.error("Failed to send email to {}", subscriber.getEmail(), e);
             }
+
         }
+    }
+
+
+    public void unsubscribeByToken(String token) {
+        Subscriber subscriber = subscriberRepository
+                .findByUnsubscribeToken(token)
+                .orElseThrow(() -> {
+                    log.warn("Invalid unsubscribe attempt with token={}", token);
+                    return new NewsletterException("INVALID_UNSUBSCRIBE_TOKEN");
+                });
+
+        if (!subscriber.isSubscribed()) {
+            log.info("Subscriber already unsubscribed: {}", subscriber.getEmail());
+            return;
+        }
+
+        subscriber.setSubscribed(false);
+        subscriber.setUnsubscribedAt(Instant.now());
+        subscriberRepository.save(subscriber);
+
+        log.info("Subscriber unsubscribed successfully: {}", subscriber.getEmail());
     }
 
 }

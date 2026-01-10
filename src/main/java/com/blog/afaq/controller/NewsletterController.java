@@ -1,5 +1,6 @@
 package com.blog.afaq.controller;
 
+import com.blog.afaq.exception.NewsletterException;
 import com.blog.afaq.model.Subscriber;
 import com.blog.afaq.repository.SubscriberRepository;
 import com.blog.afaq.service.NewsletterService;
@@ -16,7 +17,6 @@ import java.util.Optional;
 public class NewsletterController {
 
     private final NewsletterService newsletterService;
-    private final SubscriberRepository subscriberRepository;
 
 
     @PostMapping("/subscribe")
@@ -42,15 +42,14 @@ public class NewsletterController {
         }
     }
 
-    @DeleteMapping("/unsubscribe")
-    public ResponseEntity<String> unsubscribe(@RequestParam String email) {
-        Optional<Subscriber> subscriber = subscriberRepository.findByEmail(email);
-        if (subscriber.isPresent()) {
-            subscriberRepository.delete(subscriber.get());
-            return ResponseEntity.ok("You have been unsubscribed.");
-        }
-        return ResponseEntity.badRequest().body("Email not found.");
+    @GetMapping("/unsubscribe")
+    public String unsubscribe(@RequestParam String token) {
+        newsletterService.unsubscribeByToken(token);
+        return "unsubscribe-success";
     }
+
+
+
 
 }
 

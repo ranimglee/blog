@@ -45,7 +45,7 @@ public class AuthService {
 
     public UserRegisterResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new EmailAlreadyExistsException(request.getEmail());
+            throw new EmailAlreadyExistsException("Email " + request.getEmail() + " already exists");
         }
         if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
             throw new PhoneNumberAlreadyExistsException("Phone number already exists");
@@ -70,7 +70,7 @@ public class AuthService {
         token.setExpiresAt(LocalDateTime.now().plusDays(1));
         verificationTokenRepository.save(token);
 
-        String confirmationLink = "http://localhost:8080/api/auth/verify-email?token=" + token.getToken();
+        String confirmationLink = "http://51.75.200.76/api/auth/verify-email?token=" + token.getToken();
 
         emailService.sendEmailConfirmation(user.getEmail(), confirmationLink);
         return new UserRegisterResponse(

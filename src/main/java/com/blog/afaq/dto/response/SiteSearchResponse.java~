@@ -1,0 +1,17 @@
+package com.blog.afaq.dto.response;
+
+import com.blog.afaq.model.Article;
+import com.blog.afaq.model.Initiative;
+import com.blog.afaq.model.Ressource;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.List;
+@Getter
+@Setter
+public class SiteSearchResponse {
+    private List<Article> articles;
+    private List<Ressource> resources;
+    private List<Initiative> projects;
+
+}

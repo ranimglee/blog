@@ -104,8 +104,7 @@ public class RessourceService {
                 .toList();
     }
     public List<Ressource> search(String query) {
-        return ressourceRepository.searchByNameOrDescription(query);
+        return ressourceRepository.searchByNameOrDescription(query, query);
     }
-
 
 }

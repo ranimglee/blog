@@ -1,0 +1,10 @@
+package com.blog.afaq.repository;
+
+import com.blog.afaq.model.Article;
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+import java.util.List;
+
+public interface ArticleRepository extends MongoRepository<Article, String> {
+    List<Article> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(String query, String query1);
+}

@@ -114,5 +114,10 @@ public class GlobalExceptionHandler {
                         null
                 ));
     }
-
+    @ExceptionHandler(NewsletterException.class)
+    public ResponseEntity<?> handleNewsletter(NewsletterException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ex.getMessage());
+    }
 }

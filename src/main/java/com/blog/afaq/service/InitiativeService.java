@@ -94,4 +94,10 @@ public class InitiativeService {
                 .map(this::mapToResponse)
                 .toList();
     }
+
+    public List<Initiative> search(String query) {
+        return initiativeRepository.searchByTitleOrDescription(query);
+    }
+
+
 }

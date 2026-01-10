@@ -1,0 +1,39 @@
+package com.blog.afaq.controller;
+
+import com.blog.afaq.dto.response.SiteSearchResponse;
+import com.blog.afaq.model.Article;
+import com.blog.afaq.model.Initiative;
+import com.blog.afaq.model.Ressource;
+import com.blog.afaq.service.ArticleService;
+import com.blog.afaq.service.InitiativeService;
+import com.blog.afaq.service.RessourceService;
+import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/public")
+@AllArgsConstructor
+public class SearchController {
+
+    private final ArticleService articleService;
+    private final RessourceService resourceService;
+    private final InitiativeService projectService;
+
+
+
+    @GetMapping("/search")
+    public ResponseEntity<SiteSearchResponse> search(@RequestParam String query) {
+        List<Article> articles = articleService.search(query);
+        List<Ressource> resources = resourceService.search(query);
+        List<Initiative> projects = projectService.search(query);
+
+        SiteSearchResponse response = new SiteSearchResponse(articles, resources, projects);
+        return ResponseEntity.ok(response);
+    }
+}

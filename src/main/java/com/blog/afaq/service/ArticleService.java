@@ -37,7 +37,7 @@ public class ArticleService {
         newsletterService.notifySubscribersAboutNewArticle(
                 saved.getTitle(),
                 saved.getDescription(),
-                "https://efaq.netlify.app/article/" + saved.getId() // adjust to your frontend
+                "https://afaqgulfcoop.com/article/" + saved.getId() // adjust to your frontend
         );
 
         return mapToResponse(saved);
@@ -95,6 +95,11 @@ public class ArticleService {
                 .stream()
                 .filter(article -> article.getLanguage().name().equalsIgnoreCase(language))
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
+
+    public List<Article> search(String query) {
+        return articleRepository.searchByTitleOrContent(query);
+    }
+
 }
