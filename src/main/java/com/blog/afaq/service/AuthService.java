@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import org.springframework.beans.factory.annotation.Value;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -29,7 +29,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private static final int MAX_ATTEMPTS = 5;
@@ -69,10 +70,9 @@ public class AuthService {
         token.setUserId(user.getId());
         token.setExpiresAt(LocalDateTime.now().plusDays(1));
         verificationTokenRepository.save(token);
-
-        String confirmationLink = "http://51.75.200.76/api/auth/verify-email?token=" + token.getToken();
-
-        emailService.sendEmailConfirmation(user.getEmail(), confirmationLink);
+        //String confirmationLink = "http://afaqgulfcoop.com/api/auth/verify-email?token=" + token.getToken();
+        String confirmationLink = "https://afaqgulfcoop.com/api/auth/verify-email?token=" + token.getToken();
+	emailService.sendEmailConfirmation(user.getEmail(), confirmationLink);
         return new UserRegisterResponse(
                 user.getFirstname(),
                 user.getLastname(),

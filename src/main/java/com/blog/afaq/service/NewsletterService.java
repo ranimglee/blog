@@ -11,7 +11,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
-
+import org.springframework.beans.factory.annotation.Value;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -22,7 +22,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class NewsletterService {
-
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
     private final SubscriberRepository subscriberRepository;
     private final JavaMailSender mailSender;
 
@@ -48,8 +49,8 @@ public class NewsletterService {
     }
 
     private void sendConfirmationEmail(Subscriber subscriber) {
-        String confirmLink = "http://51.75.200.76/api/public/newsletter/confirm?token=" + subscriber.getConfirmationToken();
-
+        String confirmLink = "https://afaqgulfcoop.com/api/public/newsletter/confirm?token=" + subscriber.getConfirmationToken();
+        //String confirmLink = frontendUrl + "/api/public/newsletter/confirm?token=" + subscriber.getConfirmationToken();
         // Load template context
         Context context = new Context();
         context.setVariable("confirmLink", confirmLink);
@@ -91,7 +92,7 @@ public class NewsletterService {
             ctx.setVariable("title", title);
             ctx.setVariable("summary", summary);
             ctx.setVariable("url", articleUrl);
-            ctx.setVariable("unsubscribeUrl", "http://51.75.200.76/api/public/newsletter/unsubscribe?email=" +
+            ctx.setVariable("unsubscribeUrl", "https://afaqgulfcoop.com/api/public/newsletter/confirm?token=" +
                     URLEncoder.encode(subscriber.getEmail(), StandardCharsets.UTF_8));
 
             String htmlBody = templateEngine.process("new-article-email.html", ctx);
