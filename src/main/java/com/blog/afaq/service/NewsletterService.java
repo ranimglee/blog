@@ -15,6 +15,9 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 
+import org.springframework.beans.factory.annotation.Value;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +27,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class NewsletterService {
-
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
     private final SubscriberRepository subscriberRepository;
     private final JavaMailSender mailSender;
 
@@ -52,7 +56,6 @@ public class NewsletterService {
 
     private void sendConfirmationEmail(Subscriber subscriber) {
         String confirmLink = "https://afaqgulfcoop.com/api/public/newsletter/confirm?token=" + subscriber.getConfirmationToken();
-
         // Load template context
         Context context = new Context();
         context.setVariable("confirmLink", confirmLink);
