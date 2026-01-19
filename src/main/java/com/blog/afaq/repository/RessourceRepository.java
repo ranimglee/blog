@@ -10,8 +10,8 @@ import java.util.List;
 @Repository
 public interface RessourceRepository extends MongoRepository<Ressource, String> {
     @Query("{ $or: [ " +
-            "{ 'name': { $regex: ?0, $options: 'i' } }, " +
+            "{ 'titre': { $regex: ?0, $options: 'i' } }, " +
             "{ 'description': { $regex: ?0, $options: 'i' } } " +
             "] }")
-    List<Ressource> searchByNameOrDescription(String query);
+    List<Ressource> searchByTitreOrDescription(String query);
 }
