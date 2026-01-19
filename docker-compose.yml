@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  mongodb:
+    image: mongo:6.0.18-rc0-jammy
+    container_name: mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongodb
+      MONGO_INITDB_ROOT_PASSWORD: mongodb
+      MONGO_INITDB_DATABASE: blog
+    ports:
+      - "27017:27017"
+
+  backend:
+    build: .
+    container_name: spring-blog-backend
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:mongodb@mongodb:27017/blog?authSource=admin
+
+
+
+

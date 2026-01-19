@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirm your subscription</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+<div style="background-color: white; padding: 30px; max-width: 600px; margin: auto; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+    <h2 style="color: #333;">👋 Welcome to Afaq Newsletter!</h2>
+    <p style="font-size: 16px; color: #555;">
+        Thanks for subscribing! Please confirm your email address by clicking the button below:
+    </p>
+    <a th:href="${confirmLink}" th:text="'Confirm Subscription'"
+       style="display: inline-block; padding: 12px 24px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
+    </a>
+
+    <p style="margin-top: 20px; font-size: 14px; color: #888;">
+        If you didn’t request this, you can safely ignore this email.
+    </p>
+</div>
+</body>
+</html>
