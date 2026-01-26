@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
-
+@AllArgsConstructor
+@RequiredArgsConstructor
+@NoArgsConstructor
 public enum ResourceCategory {
     LEGAL,
     DATA,

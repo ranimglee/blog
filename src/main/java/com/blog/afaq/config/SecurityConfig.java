@@ -91,7 +91,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/user/**",
                                 "/api/articles/**",
-                                "/api/comments"
+                                "/api/comments",
+                                "/api/ressources/download/**"
                         ).authenticated()
 
                         .anyRequest().authenticated()

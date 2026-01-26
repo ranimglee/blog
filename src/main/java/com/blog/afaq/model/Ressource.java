@@ -20,6 +20,9 @@ public class Ressource {
     private String titre;
     private String description;
     private ResourceCategory category;
+    private ResourceSubCategory subCategory;
+    private ResourceSubCategory.NationalSubCategory subSubCategory;
+
     private FileType fileType;
     private long size; // en octets
     private String fileUrl;

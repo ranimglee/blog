@@ -1,28 +1,34 @@
-package com.blog.afaq.dto.response;
+package com.blog.afaq.model;
 
-import com.blog.afaq.model.FileType;
-import com.blog.afaq.model.Language;
-import com.blog.afaq.model.ResourceCategory;
-import com.blog.afaq.model.ResourceSubCategory;
-import lombok.Builder;
-import lombok.Data;
+
+import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
+@Document("ressources")
 @Data
 @Builder
-public class RessourceResponse {
+@NoArgsConstructor
+@AllArgsConstructor
+public class Ressource {
+
+    @Id
     private String id;
+
     private String titre;
     private String description;
     private ResourceCategory category;
     private ResourceSubCategory subCategory;
     private String subSubCategory;
+
     private FileType fileType;
-    private long size;
+    private long size; // en octets
     private String fileUrl;
     private Date createdAt;
     private String originalFilename;
     private Language language;
+
 
 }

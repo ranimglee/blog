@@ -4,6 +4,7 @@ import com.blog.afaq.model.FileType;
 import com.blog.afaq.model.Language;
 import com.blog.afaq.model.ResourceCategory;
 import com.blog.afaq.model.ResourceSubCategory;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Data;
 

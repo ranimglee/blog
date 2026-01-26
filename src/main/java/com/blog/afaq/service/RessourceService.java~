@@ -122,8 +122,6 @@ public class RessourceService {
                 .description(r.getDescription())
                 .category(r.getCategory())
                 .subCategory(r.getSubCategory())
-                .subSubCategory(r.getSubSubCategory() != null ? r.getSubSubCategory().name() : null)
-
                 .fileType(r.getFileType())
                 .language(r.getLanguage())
                 .size(r.getSize())

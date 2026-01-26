@@ -42,8 +42,9 @@ public class CloudinaryService {
             Map<String, Object> options;
 
             switch (fileType.toUpperCase()) {
-                case "PDF","DOC","EXCEL":
-
+                case "PDF":
+                case "DOC":
+                case "EXCEL":
                     options = ObjectUtils.asMap(
                             "resource_type", "raw",
                             "access_mode", "public"
