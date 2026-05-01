@@ -63,6 +63,8 @@ public class ArticleService {
                     existing.setType(request.getType());
                     existing.setContenu(request.getContenu());
                     existing.setLanguage(request.getLanguage());
+                    existing.setImageUrl(request.getImageUrl());
+                    
                     return mapToResponse(articleRepository.save(existing));
                 })
                 .orElseThrow(() -> new RuntimeException("Article not found"));
@@ -99,7 +101,7 @@ public class ArticleService {
     }
 
     public List<Article> search(String query) {
-        return articleRepository.searchByTitleOrContent(query, query);
+        return articleRepository.searchByTitleOrContent(query);
     }
 
 }

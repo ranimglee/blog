@@ -63,6 +63,8 @@ public class ArticleService {
                     existing.setType(request.getType());
                     existing.setContenu(request.getContenu());
                     existing.setLanguage(request.getLanguage());
+                    existing.setImageUrl(request.getImageUrl());
+
                     return mapToResponse(articleRepository.save(existing));
                 })
                 .orElseThrow(() -> new RuntimeException("Article not found"));
