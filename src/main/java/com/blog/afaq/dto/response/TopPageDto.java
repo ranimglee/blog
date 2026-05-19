@@ -1,0 +1,6 @@
+package com.blog.afaq.dto.response;
+
+public record TopPageDto(
+        String path,
+        long views
+) {}

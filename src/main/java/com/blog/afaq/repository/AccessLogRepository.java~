@@ -22,25 +22,11 @@ public interface AccessLogRepository extends MongoRepository<AccessLog, String>,
     Long countUniqueVisitorsBetween(Instant start, Instant end);
 
     @Aggregation(pipeline = {
-            "{ $match: { " +
-                    "event: 'PAGE_VIEW', " +
-                    "category: 'PAGE', " +
-                    "path: { " +
-                    "$not: { $regex: '^/(article|projects)/' } " +
-                    "} " +
-                    "} }",
-
+            "{ $match: { event: 'PAGE_VIEW' } }",
             "{ $group: { _id: '$path', views: { $sum: 1 } } }",
-
             "{ $sort: { views: -1 } }",
-
             "{ $limit: ?0 }",
-
-            "{ $project: { " +
-                    "path: '$_id', " +
-                    "views: 1, " +
-                    "_id: 0 " +
-                    "} }"
+            "{ $project: { path: '$_id', views: 1, _id: 0 } }"
     })
     List<TopPageDto> getTopPages(int limit);
 

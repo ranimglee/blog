@@ -74,11 +74,6 @@ public class AnalyticsController {
         return analyticsService.getTopArticles();
     }
 
-    @GetMapping("/top-projects")
-    public List<TopProjectDto> topProjects() {
-        return analyticsService.getTopProjects();
-    }
-
     @GetMapping("/device-stats")
     public List<UserAgentStatsDto> getUserAgents() {
         return analyticsService.getUserAgentStats();

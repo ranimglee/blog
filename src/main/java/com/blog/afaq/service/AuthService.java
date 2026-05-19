@@ -19,6 +19,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.RequestHeader;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -65,6 +67,8 @@ public class AuthService {
 
 
         userRepository.save(user);
+
+
         VerificationToken token = new VerificationToken();
         token.setToken(UUID.randomUUID().toString());
         token.setUserId(user.getId());
@@ -102,12 +106,13 @@ public class AuthService {
         userRepository.save(user);
 
         verificationTokenRepository.delete(verificationToken.get());
+
         return true;
     }
 
 
 
-    public LoginResponse login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request){
 
         Optional<User> userOptional = userRepository.findByEmail(request.email());
 
@@ -117,18 +122,17 @@ public class AuthService {
         }
 
         User user = userOptional.get();
-        String email = user.getEmail();
 
         if (user.getStatus() == UserStatus.BANNED) {
             throw new AccessDeniedException("Your account is banned.");
         }
 
-        if (isAccountLocked(email)) {
+        if (isAccountLocked(user.getEmail())) {
             throw new UserLockedException("Too many failed attempts. Try again later.");
         }
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-            recordFailedAttempt(email);
+            recordFailedAttempt(user.getEmail());
             throw new InvalidCredentialsException("Invalid email or password!");
         }
 
@@ -136,16 +140,17 @@ public class AuthService {
             throw new UserNotActiveException("Your account is not active. Please verify your email.");
         }
 
+        loginAttempts.remove(user.getEmail());
 
-        loginAttempts.remove(email);
+        String accessToken = jwtTokenProvider.generateAccessToken(
+                user.getEmail(), user.getRole(), user.getId()
+        );
 
-        String accessToken = jwtTokenProvider.generateAccessToken(user.getEmail(), user.getRole(), user.getId());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getEmail());
 
         user.setRefreshToken(refreshToken);
         userRepository.save(user);
 
-        accessLogRepository.save(new AccessLog(null, user.getEmail(), Instant.now()));
 
         return new LoginResponse(accessToken, refreshToken, user.getRole());
     }
@@ -155,10 +160,19 @@ public class AuthService {
     }
 
     private boolean isAccountLocked(String email) {
-        if (!loginAttempts.containsKey(email)) return false;
-
         FailedLoginAttempt attempt = loginAttempts.get(email);
-        return attempt.isLocked() && attempt.getLockTime() + LOCK_TIME > System.currentTimeMillis();
+        if (attempt == null) return false;
+
+        if (!attempt.isLocked()) return false;
+
+        long unlockTime = attempt.getLockTime() + LOCK_TIME;
+
+        if (System.currentTimeMillis() > unlockTime) {
+            loginAttempts.remove(email); // reset after cooldown
+            return false;
+        }
+
+        return true;
     }
 
 

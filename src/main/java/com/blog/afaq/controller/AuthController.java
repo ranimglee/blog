@@ -24,14 +24,19 @@ public class AuthController {
     private final UserRepository userRepository;
 
     @PostMapping("/register")
-    public ResponseEntity<UserRegisterResponse> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<UserRegisterResponse> register(@RequestBody RegisterRequest request)
+                                                        {
         return ResponseEntity.ok(authService.register(request));
     }
 
-
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+    public ResponseEntity<LoginResponse> login(
+            @RequestBody LoginRequest request
+
+    ) {
+        return ResponseEntity.ok(
+                authService.login(request)
+        );
     }
 
     @PostMapping("/refresh")

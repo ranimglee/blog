@@ -34,6 +34,6 @@ public class AccessLog {
     private String category;
 
 
-    private String deviceType;
+
 }
 

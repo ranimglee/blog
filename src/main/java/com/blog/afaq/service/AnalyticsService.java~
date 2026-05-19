@@ -58,7 +58,7 @@ public class AnalyticsService {
                 accessLogRepository.countUniqueVisitorsBetween(today, now)
         ).orElse(0L);
 
-        long activeSessions = Optional.ofNullable(
+        Long activeSessions = Optional.ofNullable(
                 accessLogRepository.countActiveSessions(today)
         ).orElse(0L);
 

@@ -44,14 +44,18 @@ public class CorsConfig {
                 "OPTIONS"
         ));
 
-        // Allowed request headers
         config.setAllowedHeaders(Arrays.asList(
                 HttpHeaders.ORIGIN,
                 HttpHeaders.CONTENT_TYPE,
                 HttpHeaders.ACCEPT,
                 HttpHeaders.AUTHORIZATION,
                 "Access-Control-Request-Method",
-                "Access-Control-Request-Headers"
+                "Access-Control-Request-Headers",
+                "X-Visitor-Id",
+                "X-Session-Id",
+                "x-visitor-id",
+                "x-session-id"
+
         ));
 
         // Headers exposed to the client
