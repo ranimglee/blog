@@ -1,4 +1,4 @@
-package com.blog.afaq.controller;
+package com.blog.afaq.dto.request;
 
 public record AnalyticsRequest(
 

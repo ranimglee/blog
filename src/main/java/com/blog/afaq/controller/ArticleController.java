@@ -39,7 +39,12 @@ public class ArticleController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
+    @GetMapping("/slug/{slug}")
+    public ResponseEntity<ArticleResponse> getBySlug(@PathVariable String slug) {
+        return articleService.getArticleBySlug(slug)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
     @PutMapping("/{id}")
     public ResponseEntity<ArticleResponse> update(@PathVariable String id, @Valid @RequestBody ArticleRequest request) {
         return ResponseEntity.ok(articleService.updateArticle(id, request));

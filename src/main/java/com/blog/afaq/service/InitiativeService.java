@@ -5,6 +5,7 @@ import com.blog.afaq.dto.request.InitiativeRequest;
 import com.blog.afaq.dto.response.InitiativeResponse;
 import com.blog.afaq.model.Initiative;
 import com.blog.afaq.repository.InitiativeRepository;
+import com.mongodb.client.MongoIterable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ public class InitiativeService {
 
     private final InitiativeRepository initiativeRepository;
     private final NewsletterService newsletterService;
+    private final InitiativeSlugMigration initiativeSlugMigration;
 
     public List<InitiativeResponse> getAllInitiatives() {
         return initiativeRepository.findAll().stream()
@@ -33,6 +35,7 @@ public class InitiativeService {
     public InitiativeResponse createInitiative(InitiativeRequest request) {
         Initiative initiative = new Initiative();
         initiative.setTitle(request.getTitle());
+        initiative.setSlug(initiativeSlugMigration.generateUniqueSlug(request.getTitle()));
         initiative.setSubTitle(request.getSubTitle());
         initiative.setContent(request.getContent());
         initiative.setImageUrl(request.getImageUrl());
@@ -45,7 +48,7 @@ public class InitiativeService {
         newsletterService.notifySubscribersAboutNewArticle(
                 initiative.getTitle(),
                 initiative.getSubTitle(),
-                "https://afaqgulfcoop.com/projects/" + initiative.getId() // adjust to your frontend
+                "https://afaqgulfcoop.com/projects/" + initiative.getSlug() // adjust to your frontend
         );
 
         return mapToResponse(saved);
@@ -75,6 +78,7 @@ public class InitiativeService {
         InitiativeResponse response = new InitiativeResponse();
         response.setId(initiative.getId());
         response.setTitle(initiative.getTitle());
+        response.setSlug(initiative.getSlug());
         response.setSubTitle(initiative.getSubTitle());
         response.setContent(initiative.getContent());
         response.setImageUrl(initiative.getImageUrl());
@@ -100,4 +104,8 @@ public class InitiativeService {
     }
 
 
+    public Optional<InitiativeResponse> getInitiativeBySlug(String slug) {
+        return initiativeRepository.findBySlug(slug)
+                .map(this::mapToResponse);
+    }
 }

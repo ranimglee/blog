@@ -1,7 +1,6 @@
 package com.blog.afaq.service;
 
 import com.blog.afaq.dto.response.BannedUserDto;
-import com.blog.afaq.dto.response.UserDto;
 import com.blog.afaq.model.User;
 import com.blog.afaq.model.UserStatus;
 import com.blog.afaq.repository.UserRepository;
@@ -39,5 +38,12 @@ public class UserService {
         dto.setBannedAt(Instant.now());
 
         return dto;
+    }
+
+    public void deleteUserAccount(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        userRepository.delete(user);
     }
 }

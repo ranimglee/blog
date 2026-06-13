@@ -19,6 +19,7 @@ public class ArticleResponse {
     private Date createdAt;
     private String imageUrl;
     private Language language;
+    private String slug;
 
 
 }

@@ -1,32 +1,59 @@
-HELP.md
+############################
+# Maven
+############################
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
 
-.mvn/wrapper/maven-wrapper.jar
+############################
+# Maven Wrapper (KEEP THESE FILES IN GIT)
+############################
+# DO NOT ignore:
+# mvnw
+# mvnw.cmd
+# .mvn/wrapper/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+############################
+# Environment variables
+############################
 .env
-### IntelliJ IDEA ###
-.idea
+
+############################
+# IDE - IntelliJ
+############################
+.idea/
 *.iws
 *.iml
 *.ipr
-mvnw
-mvnw.cmd
-### NetBeans ###
+
+############################
+# Eclipse / STS
+############################
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+
+############################
+# NetBeans
+############################
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### VS Code ###
+############################
+# VS Code
+############################
 .vscode/
+
+############################
+# OS / temp files
+############################
+*~
+*.swp
+*.bak
+*.tmp

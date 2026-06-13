@@ -16,4 +16,5 @@ public class InitiativeResponse {
     private Instant createdAt;
     private Language language;
     private Instant updatedAt;
+    private String slug;
 }

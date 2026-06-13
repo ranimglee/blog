@@ -4,6 +4,8 @@ import lombok.Data;
 
 @Data
 public class TopProjectDto {
+    private String projectId;
+
     private String title;
     private long views;
 }

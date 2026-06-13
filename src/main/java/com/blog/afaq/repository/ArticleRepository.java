@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ArticleRepository extends MongoRepository<Article, String> {
 
@@ -13,4 +14,8 @@ public interface ArticleRepository extends MongoRepository<Article, String> {
             "{ 'content': { $regex: ?0, $options: 'i' } } " +
             "] }")
     List<Article> searchByTitleOrContent(String query);
+
+    Optional<Article> findBySlug(String slug);
+
+    boolean existsBySlug(String slug);
 }

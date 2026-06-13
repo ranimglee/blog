@@ -24,5 +24,6 @@ public class Initiative {
     private Instant createdAt;
     private Language language;
     private Instant updatedAt;
+    private String slug;
 
 }

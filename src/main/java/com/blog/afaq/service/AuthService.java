@@ -8,18 +8,15 @@ import com.blog.afaq.dto.response.UserProfileResponse;
 import com.blog.afaq.dto.response.UserRegisterResponse;
 import com.blog.afaq.exception.*;
 import com.blog.afaq.model.*;
-import com.blog.afaq.repository.AccessLogRepository;
 import com.blog.afaq.repository.UserRepository;
 import com.blog.afaq.repository.VerificationTokenRepository;
 import com.blog.afaq.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -27,29 +24,39 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+
     @Value("${app.frontend-url}")
     private String frontendUrl;
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private static final int MAX_ATTEMPTS = 5;
-    private static final long LOCK_TIME = 10 * 60 * 1000;
     private final JwtTokenProvider jwtTokenProvider;
     private final VerificationTokenRepository verificationTokenRepository;
     private final EmailService emailService;
     private final ResetCodeService resetCodeService;
-    private final AccessLogRepository accessLogRepository;
-    private static final Logger log = LoggerFactory.getLogger(UserService.class);
+    private final TurnstileService turnstileService;
+
+
+    private static final int MAX_ATTEMPTS = 5;
+    private static final long LOCK_TIME = 10 * 60 * 1000;
 
     private final ConcurrentHashMap<String, FailedLoginAttempt> loginAttempts = new ConcurrentHashMap<>();
 
+    // ---------------- REGISTER ----------------
+
     public UserRegisterResponse register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new EmailAlreadyExistsException("Email " + request.getEmail() + " already exists");
+
+        turnstileService.verify(request.getCaptchaToken());
+
+        String email = normalize(request.getEmail());
+
+        if (userRepository.existsByEmail(email)) {
+            throw new EmailAlreadyExistsException("Email already exists");
         }
+
         if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
             throw new PhoneNumberAlreadyExistsException("Phone number already exists");
         }
@@ -57,7 +64,7 @@ public class AuthService {
         User user = new User();
         user.setFirstname(request.getFirstname());
         user.setLastname(request.getLastname());
-        user.setEmail(request.getEmail());
+        user.setEmail(email);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.USER);
         user.setCountry(request.getCountry());
@@ -65,9 +72,7 @@ public class AuthService {
         user.setCreatedAt(Instant.now());
         user.setStatus(UserStatus.PENDING);
 
-
         userRepository.save(user);
-
 
         VerificationToken token = new VerificationToken();
         token.setToken(UUID.randomUUID().toString());
@@ -75,9 +80,11 @@ public class AuthService {
         token.setExpiresAt(LocalDateTime.now().plusDays(1));
         verificationTokenRepository.save(token);
 
-        String confirmationLink = "https://afaqgulfcoop.com/api/auth/verify-email?token=" + token.getToken();
+        String confirmationLink =
+                frontendUrl + "/verify-email?token=" + token.getToken();
 
         emailService.sendEmailConfirmation(user.getEmail(), confirmationLink);
+
         return new UserRegisterResponse(
                 user.getFirstname(),
                 user.getLastname(),
@@ -87,60 +94,68 @@ public class AuthService {
                 user.getStatus(),
                 user.getCreatedAt(),
                 user.getRole()
-        );    }
+        );
+    }
+
+    // ---------------- EMAIL VERIFY ----------------
 
     public boolean verifyEmail(String token) {
-        Optional<VerificationToken> verificationToken = verificationTokenRepository.findByToken(token);
 
-        if (verificationToken.isEmpty() || verificationToken.get().getExpiresAt().isBefore(LocalDateTime.now())) {
+        Optional<VerificationToken> vt = verificationTokenRepository.findByToken(token);
+
+        if (vt.isEmpty() || vt.get().getExpiresAt().isBefore(LocalDateTime.now())) {
             return false;
         }
 
-        Optional<User> userOptional = userRepository.findById(verificationToken.get().getUserId());
-        if (userOptional.isEmpty()) {
-            return false;
-        }
+        User user = userRepository.findById(vt.get().getUserId())
+                .orElse(null);
 
-        User user = userOptional.get();
+        if (user == null) return false;
+
         user.setStatus(UserStatus.ACTIVE);
         userRepository.save(user);
 
-        verificationTokenRepository.delete(verificationToken.get());
+        verificationTokenRepository.delete(vt.get());
 
         return true;
     }
 
+    // ---------------- LOGIN ----------------
 
+    public LoginResponse login(LoginRequest request) {
 
-    public LoginResponse login(LoginRequest request){
+        turnstileService.verify(request.captchaToken());
 
-        Optional<User> userOptional = userRepository.findByEmail(request.email());
+        String email = normalize(request.email());
 
-        if (userOptional.isEmpty()) {
-            recordFailedAttempt(request.email());
-            throw new InvalidCredentialsException("Invalid email or password!");
+        if (email == null || request.password() == null) {
+            throw new InvalidCredentialsException("Missing credentials");
         }
 
-        User user = userOptional.get();
+        if (isAccountLocked(email)) {
+            throw new UserLockedException("Too many attempts. Try later.");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    recordFailedAttempt(email);
+                    return new InvalidCredentialsException("Invalid email or password");
+                });
 
         if (user.getStatus() == UserStatus.BANNED) {
-            throw new AccessDeniedException("Your account is banned.");
+            throw new AccessDeniedException("Account banned");
         }
 
-        if (isAccountLocked(user.getEmail())) {
-            throw new UserLockedException("Too many failed attempts. Try again later.");
+        if (user.getStatus() != UserStatus.ACTIVE) {
+            throw new UserNotActiveException("Account not active");
         }
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-            recordFailedAttempt(user.getEmail());
-            throw new InvalidCredentialsException("Invalid email or password!");
+            recordFailedAttempt(email);
+            throw new InvalidCredentialsException("Invalid email or password");
         }
 
-        if (!user.getStatus().equals(UserStatus.ACTIVE)) {
-            throw new UserNotActiveException("Your account is not active. Please verify your email.");
-        }
-
-        loginAttempts.remove(user.getEmail());
+        resetAttempts(email);
 
         String accessToken = jwtTokenProvider.generateAccessToken(
                 user.getEmail(), user.getRole(), user.getId()
@@ -151,70 +166,70 @@ public class AuthService {
         user.setRefreshToken(refreshToken);
         userRepository.save(user);
 
-
         return new LoginResponse(accessToken, refreshToken, user.getRole());
     }
 
+    // ---------------- ATTEMPTS LOGIC ----------------
+
     private void recordFailedAttempt(String email) {
-        loginAttempts.put(email, loginAttempts.getOrDefault(email, new FailedLoginAttempt()).increment());
+        loginAttempts
+                .computeIfAbsent(email, k -> new FailedLoginAttempt())
+                .increment();
+    }
+
+    private void resetAttempts(String email) {
+        loginAttempts.remove(email);
     }
 
     private boolean isAccountLocked(String email) {
+
         FailedLoginAttempt attempt = loginAttempts.get(email);
+
         if (attempt == null) return false;
 
-        if (!attempt.isLocked()) return false;
-
-        long unlockTime = attempt.getLockTime() + LOCK_TIME;
-
-        if (System.currentTimeMillis() > unlockTime) {
-            loginAttempts.remove(email); // reset after cooldown
+        if (attempt.isExpired()) {
+            loginAttempts.remove(email);
             return false;
         }
 
-        return true;
+        return attempt.isLocked();
     }
 
-
-
     private static class FailedLoginAttempt {
+
         private int attempts;
         private long lockTime;
 
-        public FailedLoginAttempt increment() {
+        void increment() {
             attempts++;
-            if (attempts >= MAX_ATTEMPTS) {
+            if (attempts == MAX_ATTEMPTS) {
                 lockTime = System.currentTimeMillis();
             }
-            return this;
         }
 
-        public boolean isLocked() {
+        boolean isLocked() {
             return attempts >= MAX_ATTEMPTS;
         }
 
-        public long getLockTime() {
-            return lockTime;
+        boolean isExpired() {
+            return lockTime > 0 &&
+                    System.currentTimeMillis() > lockTime + LOCK_TIME;
         }
     }
 
+    // ---------------- PROFILE ----------------
+
     public UserProfileResponse getUserByEmail(String email) {
-        User user = userRepository.findByEmail(email)
+
+        User user = userRepository.findByEmail(normalize(email))
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-
-        return UserProfileResponse.builder()
-                .id(user.getId())
-                .firstname(user.getFirstname())
-                .lastname(user.getLastname())
-                .email(user.getEmail())
-                .phoneNumber(user.getPhoneNumber())
-                .country(user.getCountry())
-                .build();
+        return mapUser(user);
     }
 
     public UserProfileResponse updateProfile(String email, UpdateUserProfileRequest request) {
-        User user = userRepository.findByEmail(email)
+
+        User user = userRepository.findByEmail(normalize(email))
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         user.setFirstname(request.firstname());
@@ -222,9 +237,72 @@ public class AuthService {
         user.setPhoneNumber(request.phoneNumber());
         user.setCountry(request.country());
 
-
         userRepository.save(user);
 
+        return mapUser(user);
+    }
+
+    // ---------------- RESET PASSWORD ----------------
+
+    public void sendResetCode(String email) {
+
+        email = normalize(email);
+
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null || user.getStatus() != UserStatus.ACTIVE) {
+            return;
+        }
+
+        try {
+            String code = resetCodeService.generateCode(email);
+            emailService.sendResetPasswordCode(email, code);
+        } catch (Exception e) {
+            throw new ResetCodeDeliveryException("Failed to send reset code", e);
+        }
+    }
+
+    public void resetPassword(String email, String otp, String newPassword) {
+
+        email = normalize(email);
+
+        if (!resetCodeService.validateCode(email, otp)) {
+            throw new InvalidResetCodeException("Invalid OTP");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new InvalidResetCodeException("User not found"));
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        resetCodeService.deleteCode(email);
+    }
+
+    // ---------------- CHANGE PASSWORD ----------------
+
+    public void changePassword(String token, String currentPassword, String newPassword) {
+
+        String email = jwtTokenProvider.extractEmailFromAccessToken(token);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new InvalidCredentialsException("User not found"));
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new InvalidCredentialsException("Current password incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    // ---------------- HELPERS ----------------
+
+    private String normalize(String email) {
+        return email == null ? null : email.trim().toLowerCase();
+    }
+
+    private UserProfileResponse mapUser(User user) {
         return UserProfileResponse.builder()
                 .id(user.getId())
                 .firstname(user.getFirstname())
@@ -234,78 +312,4 @@ public class AuthService {
                 .country(user.getCountry())
                 .build();
     }
-
-
-
-    public void sendResetCode(String email) {
-        log.info("📩 Attempting to send reset code to {}", email);
-
-        Optional<User> userOpt = userRepository.findByEmail(email);
-
-        if (userOpt.isEmpty()) {
-            log.warn("⚠️ No user found with email: {}", email);
-            return;
-        }
-
-        User user = userOpt.get();
-
-        if (!user.getStatus().equals(UserStatus.ACTIVE)) {
-            log.warn("⛔ User {} is not active. Cannot send reset code.", email);
-            return;
-        }
-
-        try {
-            String code = resetCodeService.generateCode(email);
-            log.info("🔑 Generated reset code for user {}: {}", email, code);
-
-            emailService.sendResetPasswordCode(user.getEmail(), code);
-            log.info("✅ Reset code successfully sent to {}", email);
-
-        } catch (Exception e) {
-            log.error("❌ Failed to send reset code for user {}: {}", email, e.getMessage());
-            throw new ResetCodeDeliveryException("Failed to send reset code for user: " + email, e);
-        }
-    }
-
-    public void resetPassword(String email, String otpCode, String newPassword) {
-        log.info("🔄 Attempting to reset password for user {}", email);
-
-        if (!resetCodeService.validateCode(email, otpCode)) {
-            log.warn("⚠️ Invalid or expired OTP code for user {}", email);
-            throw new InvalidResetCodeException("Invalid or expired OTP.");
-        }
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> {
-                    log.warn("⚠️ No user found with email: {}", email);
-                    return new InvalidResetCodeException("Invalid user.");
-                });
-
-        user.setPassword(passwordEncoder.encode(newPassword));
-        userRepository.save(user);
-        log.info("✅ Password successfully reset for user {}", email);
-
-        resetCodeService.deleteCode(email);
-        log.info("🗑️ OTP code deleted for user {}", email);
-    }
-
-
-    public void changePassword(String token, String currentPassword, String newPassword) {
-        String email = jwtTokenProvider.extractEmailFromAccessToken(token);
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new InvalidCredentialsException("User not found."));
-
-        // Check if the current password matches the stored password
-        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
-            throw new InvalidCredentialsException("Current password is incorrect.");
-        }
-
-        user.setPassword(passwordEncoder.encode(newPassword));
-        userRepository.save(user);
-    }
-
-
-
-
 }

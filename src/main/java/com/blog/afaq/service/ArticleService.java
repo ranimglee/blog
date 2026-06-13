@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,10 +19,13 @@ public class ArticleService {
 
     private final ArticleRepository articleRepository;
     private final NewsletterService newsletterService;
+    private final ArticleSlugMigration articleSlugMigration;
 
     public ArticleResponse createArticle(ArticleRequest request) {
         Article article = Article.builder()
                 .title(request.getTitle())
+                .slug(articleSlugMigration.generateUniqueSlug(request.getTitle()))
+
                 .description(request.getDescription())
                 .auteur(request.getAuteur())
                 .type(request.getType())
@@ -37,7 +39,8 @@ public class ArticleService {
         newsletterService.notifySubscribersAboutNewArticle(
                 saved.getTitle(),
                 saved.getDescription(),
-                "https://afaqgulfcoop.com/article/" + saved.getId() // adjust to your frontend
+                "https://afaqgulfcoop.com/article/" + saved.getSlug() // adjust to your frontend
+
         );
 
         return mapToResponse(saved);
@@ -53,7 +56,10 @@ public class ArticleService {
     public Optional<ArticleResponse> getArticleById(String id) {
         return articleRepository.findById(id).map(this::mapToResponse);
     }
-
+    public Optional<ArticleResponse> getArticleBySlug(String slug) {
+        return articleRepository.findBySlug(slug)
+                .map(this::mapToResponse);
+    }
     public ArticleResponse updateArticle(String id, ArticleRequest request) {
         return articleRepository.findById(id)
                 .map(existing -> {
@@ -78,6 +84,7 @@ public class ArticleService {
         return ArticleResponse.builder()
                 .id(article.getId())
                 .title(article.getTitle())
+                .slug(article.getSlug())
                 .description(article.getDescription())
                 .auteur(article.getAuteur())
                 .type(article.getType())
@@ -103,5 +110,7 @@ public class ArticleService {
     public List<Article> search(String query) {
         return articleRepository.searchByTitleOrContent(query);
     }
+
+
 
 }

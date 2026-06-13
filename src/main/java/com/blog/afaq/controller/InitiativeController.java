@@ -33,7 +33,12 @@ public class InitiativeController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
+    @GetMapping("/slug/{slug}")
+    public ResponseEntity<InitiativeResponse> getBySlug(@PathVariable String slug) {
+        return initiativeService.getInitiativeBySlug(slug)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
     @PostMapping("/create-new-initiative")
     public ResponseEntity<InitiativeResponse> create(@RequestBody InitiativeRequest request) {
         return ResponseEntity.ok(initiativeService.createInitiative(request));

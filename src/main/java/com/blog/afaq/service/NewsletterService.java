@@ -101,7 +101,7 @@ public class NewsletterService {
             ctx.setVariable(
                     "unsubscribeUrl",
                     "https://afaqgulfcoop.com/api/public/newsletter/unsubscribe?token=" +
-                  //  "http://localhost:8080/api/public/newsletter/unsubscribe?token=" +
+                   // "http://localhost:8080/api/public/newsletter/unsubscribe?token=" +
                             subscriber.getUnsubscribeToken()
             );
 
@@ -112,7 +112,7 @@ public class NewsletterService {
                 MimeMessage msg = mailSender.createMimeMessage();
                 MimeMessageHelper helper = new MimeMessageHelper(msg, "utf-8");
                 helper.setTo(subscriber.getEmail());
-                helper.setSubject("📰 New Article: " + title);
+                helper.setSubject("New Article: " + title);
                 helper.setText(htmlBody, true);
                 mailSender.send(msg);
             } catch (Exception e) {

@@ -1,6 +1,6 @@
 package com.blog.afaq.service;
 
-import com.blog.afaq.controller.AnalyticsRequest;
+import com.blog.afaq.dto.request.AnalyticsRequest;
 import com.blog.afaq.dto.response.*;
 import com.blog.afaq.model.AccessLog;
 import com.blog.afaq.model.Role;

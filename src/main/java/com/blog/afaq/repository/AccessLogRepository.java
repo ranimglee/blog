@@ -61,6 +61,7 @@ public interface AccessLogRepository extends MongoRepository<AccessLog, String>,
             "{ $unwind: '$article' }",
 
             "{ $project: { " +
+                    "articleId: '$_id', " +
                     "title: '$article.title', " +
                     "views: 1, " +
                     "_id: 0 " +
@@ -113,6 +114,7 @@ public interface AccessLogRepository extends MongoRepository<AccessLog, String>,
             "{ $unwind: '$project' }",
 
             "{ $project: { " +
+                    "projectId: '$_id', " +
                     "title: '$project.title', " +
                     "views: 1, " +
                     "_id: 0 " +

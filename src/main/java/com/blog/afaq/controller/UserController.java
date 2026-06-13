@@ -90,7 +90,11 @@ public class UserController {
         return ResponseEntity.ok("Password has been reset successfully.");
     }
 
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable String id) {
+        userService.deleteUserAccount(id);
+        return ResponseEntity.ok("User deleted successfully");
+    }
 
 
 }

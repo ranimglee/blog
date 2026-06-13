@@ -12,5 +12,7 @@ public class RegisterRequest {
     private String password;
     private String country;
     private String phoneNumber;
+    private String captchaToken;
+
 
 }

@@ -23,7 +23,7 @@ public class EmailService {
 
     @Async
     public void sendEmailConfirmation(String recipientEmail, String confirmationLink) {
-        String subject = "📧 Confirm Your Email - Afaq";
+        String subject = " Confirm Your Email - Afaq";
         String body = """
                     <html>
                     <body>
@@ -63,7 +63,7 @@ public class EmailService {
             throw new IllegalArgumentException("Recipient email must not be null or empty.");
         }
 
-        String subject = "🔐 Your Blog Password Reset Code";
+        String subject = " Your Blog Password Reset Code";
 
         String resetCode = (code != null && !code.isBlank()) ? code : "N/A";
 
